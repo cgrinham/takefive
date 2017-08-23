@@ -1,0 +1,8 @@
+Notes
+
+
+Home - Handles home page for non-logged in users
+
+Venue - Handles company/venue management
+
+Members - Handles cross-venue memberships

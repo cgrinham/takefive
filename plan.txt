@@ -1,0 +1,66 @@
+Stripe integration
+
+
+User App
+
+- Guestlist signup
+- Membership sign up
+
+	Guest
+	When would you like to visit?
+	First/Last Name
+	How many guests are you bringing?
+	What time can we be expecting you? (multiple choice)
+	email address
+
+    Guest model
+        First
+        Last
+        Date joined
+        DOB
+        email
+        * phone number
+        * photo
+
+Venues App
+- Import members
+- See guestlists and edit/export
+- See members and edit/export
+- Set up events
+-- Recurring events with exceptions
+
+models
+    Companies
+
+    Users
+        ForiegnKey Company
+        Venues
+
+    Venues
+        Name
+        Address
+        Capacity
+
+    Events
+        Date
+        Recurring?
+        
+
+    Members
+        ForeignKey Guest
+        Membership Start
+        Membership End
+
+    Guestlists
+        Guestlist Name
+        Date
+        Guest
+        Plus Ones
+        Email
+        Time slot
+        Member?
+        Notes
+
+    Old Guest Lists - Crop old guest lists to here to speed up guest list?
+
+    Staff?
