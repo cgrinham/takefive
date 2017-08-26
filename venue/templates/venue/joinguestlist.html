@@ -1,0 +1,28 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<table>
+<tr>
+    <th>Event Name</th>
+    <th>Event Start</th>
+    <th>Event End</th>
+</tr>
+{% for event in events %}
+    <tr>
+        <td>{{event.name}}</td>
+        <td>{{event.datestart}} {{event.timestart}}</td>
+        <td>{{event.dateend}} {{event.timeend}}</td>
+    </tr>
+{% endfor %}
+</table>
+<br>
+<form action="/venues/joinguestlist" method="post">
+ {% csrf_token %}
+ {{ form }}
+ <input type="submit" value="Submit">
+    
+</form>
+
+{% endblock %}

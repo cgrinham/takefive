@@ -1,0 +1,22 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<h2>{{companyname}}</h2>
+<h3>{{venue}}</h3>
+
+<h4>Event: {{event}} </h4>
+
+Guestlists:
+<table>
+    <tr>
+        <th>Guest List Name</th>
+    </tr>
+    {% for guestlist in guestlists %}
+    <tr>
+        <td><a href="/venues/viewguestlist/{{guestlist.pk}}">{{guestlist}}</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

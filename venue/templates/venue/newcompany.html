@@ -1,0 +1,15 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<h2>New Venue</h2>
+<p>Please note "reference" must contain no spaces.</p>
+<form action="/venues/newcompany" method="post">
+ {% csrf_token %}
+ {{ form }}
+ <input type="submit" value="Submit">
+    
+</form>
+
+{% endblock %}

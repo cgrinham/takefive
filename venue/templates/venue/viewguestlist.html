@@ -1,0 +1,34 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<h2>{{companyname}}</h2>
+<h3>{{venue}}</h3>
+
+<a href="/venues/newevent">Create Event</a>
+
+<h4>Event: {{event}} </h4>
+<h5>Guestlist: {{guestlist}}</h5>
+
+<p>Total Guests: {{guestcount}}</p>
+
+<table>
+    <tr>
+        <th>Event Name</th>
+        <th>Email Address</th>
+        <th>Plus Ones</th>
+    </tr>
+    {% for guest in guests %}
+    <tr>
+        <td>{{guest}}</td>
+        <td>{{guest.email}}</td>
+        <td>{{guest.plusones}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+<a href="/venues/exportcsv/1">Export Guest List</a>
+
+{% endblock %}

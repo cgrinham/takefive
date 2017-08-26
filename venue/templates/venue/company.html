@@ -1,0 +1,15 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<h2>{{company.name}}</h2>
+
+
+<ul>
+{% for venue in venues %}
+    <li><a href="{{company.reference}}/{{venue.reference}}">{{venue}}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

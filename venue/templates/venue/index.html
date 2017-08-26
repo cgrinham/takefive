@@ -1,9 +1,31 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Venues</title>
+    <title>Venues: {{company.name}}</title>
 </head>
 <body>
-Welcome to the venue administration site
+<h1>Welcome to the venue administration site</h1>
+{% if loggedin %}
+    <p>Hello {{firstname}}</p>
+    
+{% else %}
+    <a href="signup">Sign Up</a>
+    <a href="login">Login</a>
+{% endif %}
+
+
+{% for venue in venues %}
+<a href="{{company.reference}}/{{venue.reference}}">{{venue.name}}</a><br>
+{% endfor %}
+
+
+<br><br><br>
+<a href="newcompany">New Company</a><br>
+<a href="newvenue">New venue</a><br>
+<a href="newevent">New event</a><br>
+<a href="newguestlist">New guestlist</a><br>
+<a href="joinguestlist">Join Guest List</a><br>
+
 </body>
 </html>

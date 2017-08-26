@@ -1,0 +1,29 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<h2>{{companyname}}</h2>
+<h3>{{venue}}</h3>
+
+<a href="/venues/newevent">Create Event</a>
+
+<h4>Events:</h4>
+
+<table>
+    <tr>
+        <th>Event Name</th>
+        <th>Start</th>
+        <th>End</th>
+    </tr>
+    {% for event in events %}
+    <tr>
+        <td><a href="/venues/event/{{event.pk}}">{{event}}</a></td>
+        <td>{{event.datestart}} {{event.timestart}}</td>
+        <td>{{event.dateend}} {{event.timeend}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock %}
