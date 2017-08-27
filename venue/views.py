@@ -2,7 +2,7 @@ import csv, re
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
-from .models import Company, Venue, Event, Guest, GuestList
+from .models import Company, Venue, Event, Guest, GuestList, Profile
 from .forms import NewCompanyForm, NewVenueForm, NewGuestListForm, NewEventForm, JoinGuestListForm
 
 # Views
@@ -15,7 +15,7 @@ def index(request):
 
     context = {'loggedin': loggedin,
                'company': company,
-               'venues': venues
+               'venues': venues,
                }
 
     return render(request, 'venue/index.html', context)
@@ -139,6 +139,9 @@ def testpage(request):
     guest.save()"""
 
 
+    return render(request, 'venue/test.html')
+
+
 def newcompany(request):
 
     if request.method == 'POST':
@@ -171,11 +174,14 @@ def newcompany(request):
 def newvenue(request):
 
     if request.method == 'POST':
-        # Creat a form instance and populate it with data from teh request
+        # Creat a form instance and populate it with data from the request
         form = NewVenueForm(data=request.POST)
 
         if form.is_valid():
             form = form.save(commit=False)
+            # Assign company from user's profile
+            form.owner = request.user.profile.company
+            # Assign reference
             form.reference = re.sub(r'\W+', '', form.name.lower())
             form.save()
 
@@ -190,13 +196,17 @@ def newvenue(request):
 
     return render(request, 'venue/newvenue.html', context)
 
-def newevent(request):
+def newevent(request, venue):
+    # Check if company owns a venue with this reference
+    # Check user is allowed to create events for this venue
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
         form = NewEventForm(request.POST)
 
         if form.is_valid():
-            newevent = form.save()
+            newevent = form.save(commit=False)
+            newevent.venue = Venue.objects.get(reference=venue)
+            newevent.save()
             if form.cleaned_data["createguestlist"] == True:
                 print("Let's make a guestlist!")
                 newguestlist = GuestList(event=newevent, name="%s Guestlist" % form.cleaned_data["name"], maxguests=newevent.venue.capacity)
@@ -209,6 +219,7 @@ def newevent(request):
     events = Event.objects.order_by('name')
     context = {'events': events,
                'loggedin': loggedin,
+               'venue': venue,
                'form': form
                }
 

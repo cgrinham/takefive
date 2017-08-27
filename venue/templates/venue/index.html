@@ -6,24 +6,23 @@
 </head>
 <body>
 <h1>Welcome to the venue administration site</h1>
-{% if loggedin %}
-    <p>Hello {{firstname}}</p>
+{% if user.is_authenticated %}
+    <p>Hello {{user.username}} of {{user.profile.company.name}}</p>
     
+
+    {% for venue in venues %}
+    <a href="{{company.reference}}/{{venue.reference}}">{{venue.name}}</a><br>
+    {% endfor %}
+
+
+    <br><br><br>
+    <a href="newvenue">New venue</a><br>
+    <a href="joinguestlist">Join Guest List</a><br>
+
 {% else %}
     <a href="signup">Sign Up</a>
-    <a href="login">Login</a>
+    <a href="/login">Login</a>
 {% endif %}
-
-
-{% for venue in venues %}
-<a href="{{company.reference}}/{{venue.reference}}">{{venue.name}}</a><br>
-{% endfor %}
-
-
-<br><br><br>
-<a href="newcompany">New Company</a><br>
-<a href="newvenue">New venue</a><br>
-<a href="joinguestlist">Join Guest List</a><br>
 
 </body>
 </html>

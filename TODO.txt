@@ -10,3 +10,9 @@ Open/Close guestlist
 Max guests
 
 Send email to new guests
+
+Fix new event datetime check!
+
+Employees
+
+All events page

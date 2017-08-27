@@ -12,7 +12,7 @@ class NewCompanyForm(forms.ModelForm):
 class NewVenueForm(forms.ModelForm):
     class Meta:
         model = Venue
-        fields = ['owner', 'name', 'capacity']
+        fields = ['name', 'capacity']
 
 
 class NewEventForm(forms.ModelForm):
@@ -20,7 +20,7 @@ class NewEventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['venue', 'name', 'description', 'datestart', 'timestart',
+        fields = ['name', 'description', 'datestart', 'timestart',
                   'dateend', 'timeend', 'recurring']
 
     def clean(self):
@@ -63,6 +63,22 @@ class JoinGuestListForm(forms.ModelForm):
         model = Guest
         fields = ['firstname', 'lastname', 'email',
                   'member', 'timeslot', 'plusones', 'notes']
+
+    def clean(self):
+        # Clean data
+        cleaned_data = super(JoinGuestListForm, self).clean()
+
+        # Count guests
+        guestlistobj = GuestList.objects.get(pk=guestlist)
+        guests = Guest.objects.filter(guestlist=guestlistobj)
+        guestcount = 0
+        for guest in guests:
+            guestcount += guest.plusones
+        guestcount += len(guests)
+
+        if (guestcount + self.cleaned_data.get("plusones") + 1) > guestlistobj.plusones:
+            msg = u"Sorry, there is not enough space on the guest list for that many guests"
+            self._errors["plusones"] = self.error_class([msg])
 
 """
 class JoinGuestListForm(forms.Form):

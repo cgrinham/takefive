@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^venues/', include('venue.urls', namespace='venue')),
     url(r'^gl/(?P<guestlist>\w+)$', 'venue.views.joinguestlist', name='joinguestlist'),
+    url(r'^', include('django.contrib.auth.urls')),
 ]

@@ -3,13 +3,8 @@
 
 {% block content %}
 
-<h2>{{companyname}}</h2>
-<h3>{{venue}}</h3>
-
-<a href="/venues/newevent">Create Event</a>
-
-<h4>Event: {{event}} </h4>
-<h5>Guestlist: {{guestlist}}</h5>
+<h4>Event: {{event.name}} </h4>
+<h5>Guestlist: {{guestlist.name}}</h5>
 
 <p>Total Guests: {{guestcount}}</p>
 
