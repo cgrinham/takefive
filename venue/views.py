@@ -1,6 +1,7 @@
 import csv, re
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
+from django.core.mail import send_mail
 from .models import Company, Venue, Event, Guest, GuestList
 from .forms import NewCompanyForm, NewVenueForm, NewGuestListForm, NewEventForm, JoinGuestListForm
 
@@ -264,6 +265,13 @@ def joinguestlist(request, guestlist):
             form = form.save(commit=False)
             form.guestlist = guestlistobj
             form.save()
+
+            send_mail('Thankyou for joining the guest list',
+                'Dear %s,\n Thankyou for joining the guest list for %s,\n we looking forward to seeing you',
+                'hello@christiegrinham.co.uk',
+                ['hello@peoplewithapassion.co.uk'],
+                fail_silently=False,
+                )
 
             return HttpResponseRedirect('/venues')
     else:

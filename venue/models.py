@@ -61,6 +61,7 @@ class GuestList(models.Model):
     event = models.ForeignKey(Event)
     name = models.CharField("Guest List Title", max_length=100)
     maxguests = models.PositiveIntegerField("Maximum number of guests", default=50)
+    maxplusones = models.PositiveIntegerField("Maximum plus ones a guest can bring", default=1)
     listopen = models.BooleanField("List Open?",default=True)
 
     def __unicode__(self):

@@ -8,3 +8,5 @@ Don't allow a company to have two venues with the same name
 Check if event is in the past for guestlist
 Open/Close guestlist
 Max guests
+
+Send email to new guests

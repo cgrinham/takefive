@@ -20,7 +20,7 @@ class EventAdmin(admin.ModelAdmin):
     ]
 
 class GuestListAdmin(admin.ModelAdmin):
-    fields = ['event', 'name', 'maxguests', 'listopen']
+    fields = ['event', 'name', 'maxguests', 'maxplusones', 'listopen']
 
 class GuestAdmin(admin.ModelAdmin):
     fields = ['guestlist', 'firstname', 'lastname', 'email',
