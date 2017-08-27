@@ -2,27 +2,24 @@
 {% load staticfiles %}
 
 {% block content %}
+<h2>{{guestlistobj.event.name}}</h2>
+<h3>{{guestlistobj.event.datestart}}</h3>
 
-<table>
-<tr>
-    <th>Event Name</th>
-    <th>Event Start</th>
-    <th>Event End</th>
-</tr>
-{% for event in events %}
-    <tr>
-        <td>{{event.name}}</td>
-        <td>{{event.datestart}} {{event.timestart}}</td>
-        <td>{{event.dateend}} {{event.timeend}}</td>
-    </tr>
-{% endfor %}
-</table>
-<br>
-<form action="/venues/joinguestlist" method="post">
+{{guests}}
+
+{% if guestlistobj.listopen %}
+
+<form action="/venues/joinguestlist/{{guestlistobj.pk}}" method="post">
  {% csrf_token %}
  {{ form }}
  <input type="submit" value="Submit">
     
 </form>
+
+{% else %}
+
+<p>Sorry, the guest list is closed</p>
+
+{% endif %}
 
 {% endblock %}

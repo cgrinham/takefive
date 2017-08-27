@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+import venue
 
 urlpatterns = [
     url(r'^', include('home.urls', namespace='home')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^venues/', include('venue.urls', namespace='venue'))
+    url(r'^venues/', include('venue.urls', namespace='venue')),
+    url(r'^gl/(?P<guestlist>\w+)$', 'venue.views.joinguestlist', name='joinguestlist'),
 ]

@@ -8,7 +8,7 @@ class CompanyAdmin(admin.ModelAdmin):
 
 
 class VenueAdmin(admin.ModelAdmin):
-    fields = ['owner', 'name', 'reference']
+    fields = ['owner', 'name', 'reference', 'capacity']
 
 
 class EventAdmin(admin.ModelAdmin):
@@ -20,7 +20,7 @@ class EventAdmin(admin.ModelAdmin):
     ]
 
 class GuestListAdmin(admin.ModelAdmin):
-    fields = ['event', 'name']
+    fields = ['event', 'name', 'maxguests', 'listopen']
 
 class GuestAdmin(admin.ModelAdmin):
     fields = ['guestlist', 'firstname', 'lastname', 'email',

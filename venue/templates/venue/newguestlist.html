@@ -3,9 +3,11 @@
 
 {% block content %}
 
-<h2>New Venue</h2>
+<h2>New Guest List</h2>
+<h3>{{event.name}}</h3>
 
-<form action="/venues/newguestlist" method="post">
+
+<form action="/venues/newguestlist/{{event.pk}}" method="post">
  {% csrf_token %}
  {{ form }}
  <input type="submit" value="Submit">

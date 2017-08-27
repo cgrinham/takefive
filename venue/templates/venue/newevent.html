@@ -14,7 +14,12 @@
 
 <script>
   $( function() {
-    $( ".datepicker" ).datepicker();
+    $( ".datepicker" ).datepicker({
+        dateFormat: "dd/mm/yy"
+    });
+    $(".timepicker").timepicker({
+        'timeFormat': 'H:i'
+    });
   } );
-  </script>
+</script>
 {% endblock %}

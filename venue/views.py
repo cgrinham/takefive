@@ -1,4 +1,4 @@
-import csv
+import csv, re
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from .models import Company, Venue, Event, Guest, GuestList
@@ -11,7 +11,6 @@ def index(request):
 
     company = Company.objects.get(pk=1)
     venues = Venue.objects.filter(owner=company)
-    print(venues)
 
     context = {'loggedin': loggedin,
                'company': company,
@@ -26,7 +25,6 @@ def company(request, company):
 
     #companyname = get_object_or_404(Company, reference=company)
     company = Company.objects.get(reference=company)
-    print(company)
 
     #venues = get_object_or_404(Company, reference=company)
     venues = Venue.objects.filter(owner=company)
@@ -104,7 +102,7 @@ def exportcsv(request, guestlist):
     writer.writerow(['firstname', 'lastname', 'email',
                     'member', 'timeslot', 'plusones', 'notes', 'arrived'])
 
-    guestlist = GuestList.objects.get(pk=1)
+    guestlist = GuestList.objects.get(pk=guestlist)
     guests = Guest.objects.filter(guestlist=guestlist)
 
     rows = []
@@ -147,6 +145,14 @@ def newcompany(request):
         form = NewCompanyForm(data=request.POST)
 
         if form.is_valid():
+            # Create the company object but don't actually save it
+            # So that we can add the reference
+            form = form.save(commit=False)
+
+            print("Set reference!")
+            form.reference = re.sub(r'\W+', '', form.name.lower())
+
+            print(form.reference)
             form.save()
 
             return HttpResponseRedirect('/venues')
@@ -168,6 +174,8 @@ def newvenue(request):
         form = NewVenueForm(data=request.POST)
 
         if form.is_valid():
+            form = form.save(commit=False)
+            form.reference = re.sub(r'\W+', '', form.name.lower())
             form.save()
 
             return HttpResponseRedirect('/venues')
@@ -187,7 +195,11 @@ def newevent(request):
         form = NewEventForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            newevent = form.save()
+            if form.cleaned_data["createguestlist"] == True:
+                print("Let's make a guestlist!")
+                newguestlist = GuestList(event=newevent, name="%s Guestlist" % form.cleaned_data["name"], maxguests=newevent.venue.capacity)
+                newguestlist.save()
             return HttpResponseRedirect('/venues')
     else:
         form = NewEventForm()
@@ -201,13 +213,17 @@ def newevent(request):
 
     return render(request, 'venue/newevent.html', context)
 
-def newguestlist(request):
+def newguestlist(request, event):
+
+    eventobj = Event.objects.get(pk=event)
 
     if request.method == 'POST':
-        # Creat a form instance and populate it with data from teh request
+        # Create a form instance and populate it with data from the request
         form = NewGuestListForm(request.POST)
 
         if form.is_valid():
+            form = form.save(commit=False)
+            form.event = eventobj
             form.save()
 
             return HttpResponseRedirect('/venues')
@@ -216,29 +232,45 @@ def newguestlist(request):
 
     loggedin = False
     context = {'loggedin': loggedin,
+               'event': eventobj,
                'form': form
                }
 
     return render(request, 'venue/newguestlist.html', context)
 
-def joinguestlist(request):
+def joinguestlist(request, guestlist):
+    loggedin = False
+    guestlistobj = GuestList.objects.get(pk=guestlist)
+
+    # Could check guestlist open here to skip other logic for speed
+
+    # Count guests
+    guests = Guest.objects.filter(guestlist=guestlistobj)
+    guestcount = 0
+    for guest in guests:
+        guestcount += guest.plusones
+    guestcount += len(guests)
+
+    # If at capacity, closed guestlist
+    if guestcount > guestlistobj.maxguests:
+        guestlistobj.listopen = False
+        guestlistobj.save()
 
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
         form = JoinGuestListForm(request.POST)
 
         if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # redirect to new URL
+            form = form.save(commit=False)
+            form.guestlist = guestlistobj
             form.save()
 
             return HttpResponseRedirect('/venues')
     else:
         form = JoinGuestListForm()
 
-    loggedin = False
-    events = Event.objects.order_by('name')
-    context = {'events': events,
+    context = {'guestlistobj': guestlistobj,
+               'guests': guestcount,
                'loggedin': loggedin,
                'form': form
                }
