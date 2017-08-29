@@ -4,9 +4,25 @@
 {% block content %}
 <h3>{{venue}}</h3>
 
+<h4>Metrics</h4>
+
+<table class="metrics">
+    <tr>
+        <th>Guests Attended This Year</th>
+        <th>Guest Attendance Rate</th>
+    </tr>
+    <tr>
+        <td>12,634</td>
+        <td>85%</td>
+    </tr>
+</table>
+<br><br><br>
+
 <a href="/venues/newevent/{{venue.reference}}">Create Event</a><br><br>
 
-<h4>Events:</h4>
+{% if futureevents %}
+
+<h4>Upcoming Events:</h4>
 
 <table>
     <tr>
@@ -14,7 +30,7 @@
         <th>Start</th>
         <th>End</th>
     </tr>
-    {% for event in events %}
+    {% for event in futureevents %}
     <tr>
         <td><a href="/venues/event/{{event.pk}}">{{event.name}}</a></td>
         <td>{{event.datestart}} {{event.timestart}}</td>
@@ -22,6 +38,28 @@
     </tr>
     {% endfor %}
 </table>
+
+{% endif %}
+<br><br><br><br>
+
+{% if pastevents %}
+<h4>Past Events:</h4>
+
+<table>
+    <tr>
+        <th>Event Name</th>
+        <th>Start</th>
+        <th>End</th>
+    </tr>
+    {% for event in pastevents %}
+    <tr>
+        <td><a href="/venues/event/{{event.pk}}">{{event.name}}</a></td>
+        <td>{{event.datestart}} {{event.timestart}}</td>
+        <td>{{event.dateend}} {{event.timeend}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
 
 
 {% endblock %}

@@ -58,7 +58,6 @@ class VenueLayoutArea(models.Model):
 """
 
 
-
 # Holds all Events for all venues
 class Event(models.Model):
     venue = models.ForeignKey(Venue)

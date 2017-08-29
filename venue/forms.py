@@ -66,12 +66,22 @@ class JoinGuestListForm(forms.ModelForm):
                   'member', 'timeslot', 'plusones', 'notes']
 
     def __init__(self, *args, **kwargs):
+        # Set up guestlist
         self.guestlistpk = kwargs.pop('guestlistpk')
         super(JoinGuestListForm, self).__init__(*args, **kwargs)
 
+        # Set up multiple choices
+        timeslots = (
+            (1, ("6-7pm")),
+            (2, ("7-9pm")),
+            (3, ("9-11pm")),
+        )
+
+        self.fields["timeslot"].widget = forms.CheckboxSelectMultiple()
+
     def clean(self):
         # Clean data
-        cleaned_data = super(JoinGuestListForm, self).clean()
+        self.cleaned_data = super(JoinGuestListForm, self).clean()
 
         # Count guests
         guestlistobj = GuestList.objects.get(pk=self.guestlistpk)
@@ -81,10 +91,12 @@ class JoinGuestListForm(forms.ModelForm):
             guestcount += guest.plusones
         guestcount += len(guests)
 
+        # Error if there is not enough space for additional guests
         if (guestcount + self.cleaned_data.get("plusones") + 1) > guestlistobj.maxguests:
             msg = u"Sorry, there is not enough space on the guest list for that many guests"
             self._errors["plusones"] = self.error_class([msg])
 
+        # Error if exceeds max number of additional guests
         if self.cleaned_data.get("plusones") > guestlistobj.maxplusones:
             msg = u"Sorry, the maximum number of additional guests allowed is %d" % guestlistobj.maxplusones
             self._errors["plusones"] = self.error_class([msg])

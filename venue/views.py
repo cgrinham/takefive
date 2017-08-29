@@ -1,4 +1,5 @@
 import csv, re
+from datetime import datetime
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
@@ -42,9 +43,19 @@ def venue(request, company, venue):
     venue = Venue.objects.get(reference=venue)
     events = Event.objects.filter(venue=venue).order_by('datestart')
 
+    pastevents = []
+    futureevents =[]
+
+    for event in events:
+        if event.dateend < datetime.now().date():
+            pastevents.append(event)
+        else:
+            futureevents.append(event)
+
     context = {'companyname': company,
                'venue': venue,
-               'events': events
+               'pastevents': pastevents,
+               'futureevents': futureevents
                }
 
     return render(request, 'venue/venue.html', context)
@@ -54,6 +65,7 @@ def viewevent(request, event):
     print(event)
 
     guestlists = GuestList.objects.filter(event=event)
+
     print(guestlists)
 
     context = { 'guestlists': guestlists,
@@ -67,7 +79,7 @@ def viewguestlist(request, guestlist):
 
     event = guestlist.event
 
-    guests = Guest.objects.filter(guestlist=guestlist)
+    guests = Guest.objects.filter(guestlist=guestlist).order_by('firstname')
 
     # Get total amount of guests
     guestcount = 0
@@ -93,7 +105,7 @@ def exportcsv(request, guestlist):
                     'member', 'timeslot', 'plusones', 'notes', 'arrived'])
 
     guestlist = GuestList.objects.get(pk=guestlist)
-    guests = Guest.objects.filter(guestlist=guestlist)
+    guests = Guest.objects.filter(guestlist=guestlist).order_by('firstname')
 
     rows = []
 

@@ -16,3 +16,5 @@ Fix new event datetime check!
 Employees
 
 All events page
+
+Intercom integration

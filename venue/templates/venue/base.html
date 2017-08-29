@@ -81,6 +81,10 @@
             display: block;
         }
 
+        .clear {
+            clear: both;
+        }
+
         h1, h2, h3 , h4, h5 {
             margin-bottom:  15px;
         }
@@ -112,6 +116,23 @@
             padding:  20px;
         }
 
+        #header h1 {
+            float: left;
+            clear: both;
+        }
+
+        #header-details {
+            float: right;
+        }
+
+        .metrics td {
+            text-align: center;
+        }
+
+        table {
+            width:  100%;
+        }
+
         td, th {
             padding: 10px;
         }
@@ -127,8 +148,13 @@
 <body>
 <div id="header">
 <a href="/venues"><h1>Home</h1></a>
-{{user.profile.company.name}}<br>
-Logged in as {{user.first_name}} {{user.last_name}}
+
+{% if user.username %}
+<div id="header-details">{{user.profile.company.name}}<br>
+Logged in as {{user.first_name}} {{user.last_name}}</div>
+{% endif %}
+
+<div class="clear"></div>
 </div>
 
 <div id="content">
