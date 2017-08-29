@@ -8,12 +8,11 @@ from .forms import NewCompanyForm, NewVenueForm, NewGuestListForm, NewEventForm,
 # Views
 
 def index(request):
-    loggedin = True
 
     company = Company.objects.get(pk=1)
     venues = Venue.objects.filter(owner=company)
 
-    context = {'loggedin': loggedin,
+    context = {
                'company': company,
                'venues': venues,
                }
@@ -22,7 +21,6 @@ def index(request):
 
 
 def company(request, company):
-    loggedin = True
 
     #companyname = get_object_or_404(Company, reference=company)
     company = Company.objects.get(reference=company)
@@ -30,25 +28,21 @@ def company(request, company):
     #venues = get_object_or_404(Company, reference=company)
     venues = Venue.objects.filter(owner=company)
 
-    context = {'loggedin': loggedin,
-               'company': company,
+    context = {'company': company,
                'venues': venues
                }
 
     return render(request, 'venue/company.html', context)
 
 def venue(request, company, venue):
-    loggedin = True
-
     #companyname = get_object_or_404(Company, reference=company)
     company = Company.objects.get(reference=company)
 
     #venues = get_object_or_404(Company, reference=company)
     venue = Venue.objects.get(reference=venue)
-    events = Event.objects.filter(venue=venue)
+    events = Event.objects.filter(venue=venue).order_by('datestart')
 
-    context = {'loggedin': loggedin,
-               'companyname': company,
+    context = {'companyname': company,
                'venue': venue,
                'events': events
                }
@@ -56,23 +50,19 @@ def venue(request, company, venue):
     return render(request, 'venue/venue.html', context)
 
 def viewevent(request, event):
-    loggedin = False
     event = Event.objects.get(pk=event)
     print(event)
 
     guestlists = GuestList.objects.filter(event=event)
     print(guestlists)
 
-    context = {'loggedin': loggedin,
-                'guestlists': guestlists,
+    context = { 'guestlists': guestlists,
                 'event': event
                }
 
     return render(request, 'venue/viewevent.html', context)
 
 def viewguestlist(request, guestlist):
-    loggedin = False
-
     guestlist = GuestList.objects.get(pk=guestlist)
 
     event = guestlist.event
@@ -85,8 +75,7 @@ def viewguestlist(request, guestlist):
         guestcount += guest.plusones
     guestcount += len(guests)
 
-    context = {'loggedin': loggedin,
-                'guests': guests,
+    context = {'guests': guests,
                 'guestcount': guestcount,
                 'guestlist': guestlist,
                 'event': event
@@ -163,9 +152,7 @@ def newcompany(request):
     else:
         form = NewCompanyForm()
 
-    loggedin = False
-    context = {'loggedin': loggedin,
-               'form': form
+    context = {'form': form
                }
 
     return render(request, 'venue/newcompany.html', context)
@@ -189,9 +176,7 @@ def newvenue(request):
     else:
         form = NewVenueForm()
 
-    loggedin = False
-    context = {'loggedin': loggedin,
-               'form': form
+    context = {'form': form
                }
 
     return render(request, 'venue/newvenue.html', context)
@@ -215,10 +200,8 @@ def newevent(request, venue):
     else:
         form = NewEventForm()
 
-    loggedin = False
     events = Event.objects.order_by('name')
     context = {'events': events,
-               'loggedin': loggedin,
                'venue': venue,
                'form': form
                }
@@ -242,16 +225,13 @@ def newguestlist(request, event):
     else:
         form = NewGuestListForm()
 
-    loggedin = False
-    context = {'loggedin': loggedin,
-               'event': eventobj,
+    context = {'event': eventobj,
                'form': form
                }
 
     return render(request, 'venue/newguestlist.html', context)
 
 def joinguestlist(request, guestlist):
-    loggedin = False
     guestlistobj = GuestList.objects.get(pk=guestlist)
 
     # Could check guestlist open here to skip other logic for speed
@@ -270,27 +250,30 @@ def joinguestlist(request, guestlist):
 
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
-        form = JoinGuestListForm(request.POST)
+        form = JoinGuestListForm(request.POST, guestlistpk=5)
 
         if form.is_valid():
             form = form.save(commit=False)
             form.guestlist = guestlistobj
             form.save()
 
-            send_mail('Thankyou for joining the guest list',
-                'Dear %s,\n Thankyou for joining the guest list for %s,\n we looking forward to seeing you',
-                'hello@christiegrinham.co.uk',
-                ['hello@peoplewithapassion.co.uk'],
-                fail_silently=False,
-                )
+            #send_mail('Thankyou for joining the guest list',
+            #    'Dear %s,\n Thankyou for joining the guest list for %s,\n we looking forward to seeing you',
+            #    'hello@christiegrinham.co.uk',
+            #    ['hello@peoplewithapassion.co.uk'],
+            #    fail_silently=False,
+            #    )
 
-            return HttpResponseRedirect('/venues')
+            context = {'guestlistobj': guestlistobj,
+                       'thankyou': True
+            }
+
+            return render(request, 'venue/joinguestlist.html', context)
     else:
-        form = JoinGuestListForm()
+        form = JoinGuestListForm(guestlistpk=5)
 
     context = {'guestlistobj': guestlistobj,
                'guests': guestcount,
-               'loggedin': loggedin,
                'form': form
                }
 

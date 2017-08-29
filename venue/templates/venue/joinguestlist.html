@@ -5,20 +5,26 @@
 <h2>{{guestlistobj.event.name}}</h2>
 <h3>{{guestlistobj.event.datestart}}</h3>
 
-{{guests}}
+{% if thankyou %}
 
-{% if guestlistobj.listopen %}
-
-<form action="/venues/joinguestlist/{{guestlistobj.pk}}" method="post">
- {% csrf_token %}
- {{ form }}
- <input type="submit" value="Submit">
-    
-</form>
+<h1>Thank you for joining the guest list for {{guestlistobj.event.name}}</h1>
 
 {% else %}
 
-<p>Sorry, the guest list is closed</p>
+    {% if guestlistobj.listopen %}
+
+    <form action="/venues/joinguestlist/{{guestlistobj.pk}}" method="post">
+     {% csrf_token %}
+     {{ form }}
+     <input type="submit" value="Submit">
+        
+    </form>
+
+    {% else %}
+
+    <p>Sorry, the guest list is closed</p>
+
+    {% endif %}
 
 {% endif %}
 

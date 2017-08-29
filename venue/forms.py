@@ -27,6 +27,7 @@ class NewEventForm(forms.ModelForm):
         # Clean data
         cleaned_data = super(NewEventForm, self).clean()
 
+
         # Check event doesn't end before it starts
         datestart = self.cleaned_data.get("datestart")
         dateend = self.cleaned_data.get("dateend")
@@ -55,7 +56,7 @@ class NewEventForm(forms.ModelForm):
 class NewGuestListForm(forms.ModelForm):
     class Meta:
         model = GuestList
-        fields = ['name']
+        fields = ['name', 'maxguests', 'maxplusones', 'listopen']
 
 
 class JoinGuestListForm(forms.ModelForm):
@@ -64,20 +65,28 @@ class JoinGuestListForm(forms.ModelForm):
         fields = ['firstname', 'lastname', 'email',
                   'member', 'timeslot', 'plusones', 'notes']
 
+    def __init__(self, *args, **kwargs):
+        self.guestlistpk = kwargs.pop('guestlistpk')
+        super(JoinGuestListForm, self).__init__(*args, **kwargs)
+
     def clean(self):
         # Clean data
         cleaned_data = super(JoinGuestListForm, self).clean()
 
         # Count guests
-        guestlistobj = GuestList.objects.get(pk=guestlist)
+        guestlistobj = GuestList.objects.get(pk=self.guestlistpk)
         guests = Guest.objects.filter(guestlist=guestlistobj)
         guestcount = 0
         for guest in guests:
             guestcount += guest.plusones
         guestcount += len(guests)
 
-        if (guestcount + self.cleaned_data.get("plusones") + 1) > guestlistobj.plusones:
+        if (guestcount + self.cleaned_data.get("plusones") + 1) > guestlistobj.maxguests:
             msg = u"Sorry, there is not enough space on the guest list for that many guests"
+            self._errors["plusones"] = self.error_class([msg])
+
+        if self.cleaned_data.get("plusones") > guestlistobj.maxplusones:
+            msg = u"Sorry, the maximum number of additional guests allowed is %d" % guestlistobj.maxplusones
             self._errors["plusones"] = self.error_class([msg])
 
 """
