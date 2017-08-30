@@ -1,0 +1,45 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}"><h3>{{venue}}</h3></a><br>
+
+{% if venuelayoutdict %}
+
+<h4>Venue Layouts</h4>
+
+    {% for layoutkey, layoutvalue in venuelayoutdict.items %}
+
+    <h5>{{layoutvalue.0.name}}</h5>
+
+    <table>
+        <tr>
+            <th>Area Name</th>
+            <th>Capacity</th>
+            <th>Notes</th>
+            <th>Price</th>
+        </tr>
+        {% for layoutarea in layoutvalue.1 %}
+        <tr>
+            <td>{{layoutarea.name}}</td>
+            <td>{{layoutarea.capacity}}</td>
+            <td>{{layoutarea.notes}}</td>
+            <td>£{{layoutarea.price}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br><br><br>
+
+    {% endfor %}
+
+{% else %}
+
+<p>There are currently no layouts for this venue</p>
+
+{% endif %}
+
+<br><br>
+<a href="layout/create">Create layout</a>
+<br><br><br><br>
+
+{% endblock %}

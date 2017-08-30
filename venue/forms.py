@@ -1,6 +1,6 @@
 from django import forms
 import re
-from .models import Company, Venue, Event, Guest, GuestList
+from .models import Company, Venue, Event, Guest, GuestList, AreaHire
 
 
 class NewCompanyForm(forms.ModelForm):
@@ -58,6 +58,10 @@ class NewGuestListForm(forms.ModelForm):
         model = GuestList
         fields = ['name', 'maxguests', 'maxplusones', 'listopen']
 
+class AreaHireForm(forms.ModelForm):
+    class Meta:
+        model = AreaHire
+
 
 class JoinGuestListForm(forms.ModelForm):
     class Meta:
@@ -70,6 +74,7 @@ class JoinGuestListForm(forms.ModelForm):
         self.guestlistpk = kwargs.pop('guestlistpk')
         super(JoinGuestListForm, self).__init__(*args, **kwargs)
 
+        """
         # Set up multiple choices
         timeslots = (
             (1, ("6-7pm")),
@@ -78,6 +83,8 @@ class JoinGuestListForm(forms.ModelForm):
         )
 
         self.fields["timeslot"].widget = forms.CheckboxSelectMultiple()
+        """
+
 
     def clean(self):
         # Clean data

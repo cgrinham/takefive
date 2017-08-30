@@ -3,8 +3,8 @@ from datetime import datetime
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
-from .models import Company, Venue, Event, Guest, GuestList, Profile
-from .forms import NewCompanyForm, NewVenueForm, NewGuestListForm, NewEventForm, JoinGuestListForm
+from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest, GuestList, Profile
+from .forms import NewCompanyForm, NewVenueForm, NewGuestListForm, NewEventForm, JoinGuestListForm, AreaHireForm
 
 # Views
 
@@ -44,7 +44,7 @@ def venue(request, company, venue):
     events = Event.objects.filter(venue=venue).order_by('datestart')
 
     pastevents = []
-    futureevents =[]
+    futureevents = []
 
     for event in events:
         if event.dateend < datetime.now().date():
@@ -52,13 +52,34 @@ def venue(request, company, venue):
         else:
             futureevents.append(event)
 
-    context = {'companyname': company,
+    context = {
                'venue': venue,
                'pastevents': pastevents,
                'futureevents': futureevents
                }
 
     return render(request, 'venue/venue.html', context)
+
+def venuelayout(request, company, venue):
+    company = Company.objects.get(reference=company)
+    venue = Venue.objects.get(reference=venue)
+
+    venuelayouts = VenueLayout.objects.filter(venue=venue)
+
+    venuelayoutdict = {}
+
+    for venuelayout in venuelayouts:
+        venuelayoutarea = VenueLayoutArea.objects.filter(layout=venuelayout)
+        venuelayoutdict[venuelayout.name] = [venuelayout, venuelayoutarea]
+
+    print(venuelayoutdict)
+
+    context = {'company': company,
+               'venue': venue,
+               'venuelayoutdict': venuelayoutdict
+               }
+
+    return render(request, 'venue/venuelayout.html', context)
 
 def viewevent(request, event):
     event = Event.objects.get(pk=event)
@@ -290,3 +311,13 @@ def joinguestlist(request, guestlist):
                }
 
     return render(request, 'venue/joinguestlist.html', context)
+
+def areahire(request):
+
+    form = AreaHireForm()
+
+    context = {
+               'form': form
+               }
+
+    return render(request, 'venue/areahire.html', context)
