@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/event/(?P<event>\w+)$', views.viewevent, name='viewevent'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/guestlist/(?P<guestlist>\w+)$', views.viewguestlist, name='viewguestlist'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/newevent$', views.newevent, name='newevent'),
+    url(r'^(?P<company>\w+)/(?P<venue>\w+)/members$', views.members, name='members'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/layout$', views.venuelayout, name='venuelayout'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/layout/create$', views.newvenuelayout, name='newvenuelayout'),
 )

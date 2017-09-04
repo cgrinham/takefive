@@ -5,6 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import RegexValidator
 
+
 class Company(models.Model):
     name = models.CharField(max_length=40)
     reference = models.CharField(max_length=40)
@@ -12,6 +13,7 @@ class Company(models.Model):
 
     def __unicode__(self):
         return self.name
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -29,6 +31,7 @@ class Profile(models.Model):
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
 
+
 # Holds all venues owned by all companies
 class Venue(models.Model):
     created = models.DateTimeField(editable=False, default=now)
@@ -41,6 +44,7 @@ class Venue(models.Model):
     def __unicode__(self):
         return self.name
 
+
 # Venue Layout for Area Reservation
 class VenueLayout(models.Model):
     company = models.ForeignKey(Company)
@@ -50,6 +54,7 @@ class VenueLayout(models.Model):
 
     def __unicode__(self):
         return self.name
+
 
 class VenueLayoutArea(models.Model):
     company = models.ForeignKey(Company)
@@ -74,12 +79,13 @@ class Event(models.Model):
     timestart = models.TimeField("Event Start Time")
     dateend = models.DateField("Event End Date")
     timeend = models.TimeField("Event End Time")
-    #venuelayout = models.ForeignKey(VenueLayout)
+    # venuelayout = models.ForeignKey(VenueLayout)
     # Time slots needed
     recurring = models.BooleanField("Recurring event")
 
-    def __unicode__(self): 
+    def __unicode__(self):
         return "%s - %s - %s" % (self.venue.name, self.datestart, self.name)
+
 
 # Holds title of guest lists for all events
 class GuestList(models.Model):
@@ -87,12 +93,15 @@ class GuestList(models.Model):
     venue = models.ForeignKey(Venue)
     event = models.ForeignKey(Event)
     name = models.CharField("Guest List Title", max_length=100)
-    maxguests = models.PositiveIntegerField("Maximum number of guests", default=50)
+    maxguests = models.PositiveIntegerField("Maximum number of guests",
+                                            default=50)
     maxplusones = models.PositiveIntegerField("Maximum plus ones a guest can bring", default=1)
-    listopen = models.BooleanField("List Open?",default=True)
+    listopen = models.BooleanField("List Open?", default=True)
 
     def __unicode__(self):
-        return "%s - %s - %s" % (self.event.name, self.event.datestart, self.name)
+        return "%s - %s - %s" % (self.event.name, self.event.datestart,
+                                 self.name)
+
 
 # Holds all guests for all guestlists
 class Guest(models.Model):
@@ -111,14 +120,30 @@ class Guest(models.Model):
     def __unicode__(self):
         return "%s %s" % (self.firstname, self.lastname)
 
+
 class Member(models.Model):
     firstname = models.CharField("First Name", max_length=50)
     lastname = models.CharField("Last Name", max_length=50)
     email = models.EmailField("Email", max_length=254)
     dateofbirth = models.DateField("Date of Birth")
+    appearances = models.PositiveIntegerField(default=0)
+
+    def __unicode__(self):
+        return "%s %s" % (self.firstname, self.lastname)
+
+
+class Membership(models.Model):
+    """ Membership relationships """
+    member = models.ForeignKey(Member)
+    venue = models.ForeignKey(Venue)
     joined = models.DateField("Date joined")
     expires = models.DateField("Membership expiry date")
     paid = models.BooleanField("Membership paid", default=False)
+
+    def __unicode__(self):
+        return "%s %s at %s" % (self.member.firstname, self.member.lastname,
+                                self.venue.name)
+
 
 class AreaHireBooking(models.Model):
     company = models.ForeignKey(Company)
@@ -128,4 +153,5 @@ class AreaHireBooking(models.Model):
     lastname = models.CharField("Last Name", max_length=50)
     email = models.EmailField("Email Address", max_length=254)
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-    phone = models.CharField(validators=[phone_regex], blank=True, max_length=18)  # validators should be a list
+    phone = models.CharField(validators=[phone_regex], blank=True,
+                             max_length=18)  # validators should be a list

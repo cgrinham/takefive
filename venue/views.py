@@ -3,13 +3,14 @@ from datetime import datetime
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
-from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest, GuestList, Profile
+from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest
+from .models import GuestList, Profile, Member, Membership
 from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm, NewGuestListForm, NewEventForm, JoinGuestListForm, AreaHireBookingForm
 
 # Views
 
-def index(request):
 
+def index(request):
     company = Company.objects.get(pk=1)
     venues = Venue.objects.filter(owner=company)
 
@@ -61,6 +62,22 @@ def venue(request, company, venue):
                }
 
     return render(request, 'venue/venue.html', context)
+
+
+def members(request, company, venue):
+
+    company = Company.objects.get(reference=company)
+    venue = Venue.objects.get(reference=venue)
+
+    members = Membership.objects.filter(venue=venue)
+
+    context = {
+               'venue': venue,
+               'company': company,
+               'members': members
+               }
+
+    return render(request, 'venue/members.html', context)
 
 
 def venuelayout(request, company, venue):
@@ -176,7 +193,8 @@ def exportcsv(request, guestlist):
 
     for guest in guests:
         row = [guest.firstname, guest.lastname, guest.email,
-               guest.member, guest.timeslot, guest.plusones, guest.notes, guest.arrived]
+               guest.member, guest.timeslot, guest.plusones,
+               guest.notes, guest.arrived]
         rows.append(row)
 
     print(rows)
@@ -320,6 +338,7 @@ def newguestlist(request, event):
 
     return render(request, 'venue/newguestlist.html', context)
 
+
 def joinguestlist(request, guestlist):
     guestlistobj = GuestList.objects.get(pk=guestlist)
 
@@ -371,6 +390,7 @@ def joinguestlist(request, guestlist):
                }
 
     return render(request, 'venue/joinguestlist.html', context)
+
 
 def areahire(request):
 
