@@ -111,6 +111,14 @@ class Guest(models.Model):
     def __unicode__(self):
         return "%s %s" % (self.firstname, self.lastname)
 
+class Member(models.Model):
+    firstname = models.CharField("First Name", max_length=50)
+    lastname = models.CharField("Last Name", max_length=50)
+    email = models.EmailField("Email", max_length=254)
+    dateofbirth = models.DateField("Date of Birth")
+    joined = models.DateField("Date joined")
+    expires = models.DateField("Membership expiry date")
+    paid = models.BooleanField("Membership paid", default=False)
 
 class AreaHireBooking(models.Model):
     company = models.ForeignKey(Company)

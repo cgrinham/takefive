@@ -348,16 +348,18 @@ def joinguestlist(request, guestlist):
             form.venue = guestlistobj.venue
             form.save()
 
-            #send_mail('Thankyou for joining the guest list',
-            #    'Dear %s,\n Thankyou for joining the guest list for %s,\n we looking forward to seeing you',
-            #    'hello@christiegrinham.co.uk',
-            #    ['hello@peoplewithapassion.co.uk'],
-            #    fail_silently=False,
-            #    )
+            send_mail('Thankyou for joining the guest list',
+                      """Dear %s,\n Thankyou for joining the guest list for %s,\n
+                       We looking forward to seeing you.\n
+                       Piano Bar Soho Team""" % (form.firstname, guestlistobj.event.name),
+                      'tf@christiegrinham.co.uk',
+                      [form.email],
+                      fail_silently=False,
+                      )
 
             context = {'guestlistobj': guestlistobj,
                        'thankyou': True
-            }
+                       }
 
             return render(request, 'venue/joinguestlist.html', context)
     else:

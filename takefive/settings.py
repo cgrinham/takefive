@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import emailpassword
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -107,3 +108,11 @@ STATIC_URL = '/static/'
 
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/venues'
+
+
+# Email settings
+EMAIL_HOST = 'auth.smtp.1and1.co.uk'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'tf@christiegrinham.co.uk'
+EMAIL_HOST_PASSWORD = emailpassword.PASSWORD
+EMAIL_USE_TLS = True
