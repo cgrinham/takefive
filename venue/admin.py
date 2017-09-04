@@ -10,7 +10,7 @@ class ProfileAdmin(admin.ModelAdmin):
     fields = ['user', 'company']
 
 class VenueAdmin(admin.ModelAdmin):
-    fields = ['owner', 'name', 'reference', 'capacity']
+    fields = ['owner', 'name', 'reference', 'capacity', 'defaultplusones']
 
 
 class VenueLayoutAdmin(admin.ModelAdmin):
@@ -18,22 +18,22 @@ class VenueLayoutAdmin(admin.ModelAdmin):
 
 
 class VenueLayoutAreaAdmin(admin.ModelAdmin):
-    fields = ['layout', 'name', 'capacity', 'notes', 'price']
+    fields = ['company', 'venue', 'layout', 'name', 'capacity', 'notes', 'price']
 
 
 class EventAdmin(admin.ModelAdmin):
     fieldsets = [
-                ('Event', {'fields': ['venue', 'name', 'description']}),
+                ('Event', {'fields': ['company', 'venue', 'name', 'description']}),
                 ('Date & Time', {'fields': ['datestart', 'timestart',
                                  'dateend', 'timeend']}),
                 ('Recurrance', {'fields': ['recurring']})
     ]
 
 class GuestListAdmin(admin.ModelAdmin):
-    fields = ['event', 'name', 'maxguests', 'maxplusones', 'listopen']
+    fields = ['company', 'venue', 'event', 'name', 'maxguests', 'maxplusones', 'listopen']
 
 class GuestAdmin(admin.ModelAdmin):
-    fields = ['guestlist', 'firstname', 'lastname', 'email',
+    fields = ['company', 'venue', 'guestlist', 'firstname', 'lastname', 'email',
               'member', 'timeslot', 'plusones', 'notes', 'arrived']
 
 admin.site.register(Company, CompanyAdmin)

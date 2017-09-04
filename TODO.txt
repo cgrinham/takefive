@@ -19,3 +19,5 @@ All events page
 Intercom integration
 
 Redirect for people with overly large groups
+
+Delete/edit functions for all objects

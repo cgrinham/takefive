@@ -3,21 +3,32 @@
 
 {% block content %}
 
-<h3>{{venue}}</h3>
-
+<a href="/venues/{{company.reference}}/{{venue.reference}}"><h3>{{venue}}</h3></a>
+<section>
 <h4>Event: {{event}} </h4>
-
+<p>{{event.description}}</p>
+</section>
+<section>
 Guestlists:
 <table>
     <tr>
         <th>Guest List Name</th>
+        <th class="center">Guests</th>
+        <th class="center">Open?</th>
     </tr>
     {% for guestlist in guestlists %}
     <tr>
-        <td><a href="/venues/viewguestlist/{{guestlist.pk}}">{{guestlist}}</a></td>
+        <td>
+            <a href="/venues/{{company.reference}}/{{venue.reference}}/guestlist/{{guestlist.pk}}">{{guestlist.name}}</a>
+        </td>
+        <td class="center">
+            {{ guestlist|length }}
+        </td>
+        <td class="center">{{guestlist.listopen}}</td>
     </tr>
     {% endfor %}
 </table>
 
 <a href="/venues/newguestlist/{{event.pk}}">New Guest List</a>
+</section>
 {% endblock %}

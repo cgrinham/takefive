@@ -36,6 +36,7 @@ class Venue(models.Model):
     name = models.CharField(max_length=40)
     reference = models.CharField(max_length=40)
     capacity = models.PositiveIntegerField("Venue Capacity")
+    defaultplusones = models.PositiveIntegerField("Default max Plus Ones")
 
     def __unicode__(self):
         return self.name
@@ -45,7 +46,7 @@ class VenueLayout(models.Model):
     company = models.ForeignKey(Company)
     venue = models.ForeignKey(Venue)
     name = models.CharField(max_length=120, default="Default Layout")
-    description = models.CharField(max_length=400)
+    description = models.CharField(max_length=400, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -60,11 +61,12 @@ class VenueLayoutArea(models.Model):
     price = models.PositiveIntegerField()
 
     def __unicode__(self):
-        return self.name
+        return "%s %s" (self.venue.name, self.name)
 
 
 # Holds all Events for all venues
 class Event(models.Model):
+    company = models.ForeignKey(Company)
     venue = models.ForeignKey(Venue)
     name = models.CharField("Event Name", max_length=120)
     description = models.TextField("Description")
@@ -81,6 +83,8 @@ class Event(models.Model):
 
 # Holds title of guest lists for all events
 class GuestList(models.Model):
+    company = models.ForeignKey(Company)
+    venue = models.ForeignKey(Venue)
     event = models.ForeignKey(Event)
     name = models.CharField("Guest List Title", max_length=100)
     maxguests = models.PositiveIntegerField("Maximum number of guests", default=50)
@@ -92,13 +96,15 @@ class GuestList(models.Model):
 
 # Holds all guests for all guestlists
 class Guest(models.Model):
+    company = models.ForeignKey(Company)
+    venue = models.ForeignKey(Venue)
     guestlist = models.ForeignKey(GuestList)
     firstname = models.CharField("First Name", max_length=50)
     lastname = models.CharField("Last Name", max_length=50)
     email = models.EmailField("Email", max_length=254)
     member = models.BooleanField("Member")
     timeslot = models.CharField("Time Slot", max_length=50)
-    plusones = models.PositiveIntegerField("Plus Ones")
+    plusones = models.PositiveIntegerField("Plus Ones", default=0)
     notes = models.CharField("Additional information", max_length=140, blank=True)
     arrived = models.BooleanField("Arrived", default=False)
 
@@ -107,6 +113,8 @@ class Guest(models.Model):
 
 
 class AreaHireBooking(models.Model):
+    company = models.ForeignKey(Company)
+    venue = models.ForeignKey(Venue)
     area = models.ForeignKey(VenueLayoutArea)
     firstname = models.CharField("First Name", max_length=50)
     lastname = models.CharField("Last Name", max_length=50)

@@ -1,6 +1,7 @@
 from django import forms
 import re
-from .models import Company, Venue, Event, Guest, GuestList, AreaHire
+from .models import Company, Venue, VenueLayout, Event, Guest, GuestList, AreaHireBooking
+from django.utils.translation import gettext_lazy as _
 
 
 class NewCompanyForm(forms.ModelForm):
@@ -14,6 +15,11 @@ class NewVenueForm(forms.ModelForm):
         model = Venue
         fields = ['name', 'capacity']
 
+
+class NewVenueLayoutForm(forms.ModelForm):
+    class Meta:
+        model = VenueLayout
+        exclude = ['company', 'venue']
 
 class NewEventForm(forms.ModelForm):
     createguestlist = forms.BooleanField(initial=True)
@@ -36,9 +42,10 @@ class NewEventForm(forms.ModelForm):
             self._errors["dateend"] = self.error_class([msg])
         timestart = self.cleaned_data.get("timestart")
         timeend = self.cleaned_data.get("timeend")
-        if timeend < timestart:
+        if (timeend < timestart) and (datestart == dateend):
             msg = u"Event can't end before it has started! Please change End Time."
             self._errors["timeend"] = self.error_class([msg])
+
 
 
     def __init__(self, *args, **kwargs):
@@ -58,16 +65,26 @@ class NewGuestListForm(forms.ModelForm):
         model = GuestList
         fields = ['name', 'maxguests', 'maxplusones', 'listopen']
 
-class AreaHireForm(forms.ModelForm):
+
+class AreaHireBookingForm(forms.ModelForm):
     class Meta:
-        model = AreaHire
+        model = AreaHireBooking
+        fields = ['area', 'firstname', 'lastname', 'email', 'phone']
 
 
 class JoinGuestListForm(forms.ModelForm):
     class Meta:
         model = Guest
-        fields = ['firstname', 'lastname', 'email',
-                  'member', 'timeslot', 'plusones', 'notes']
+        fields = ['firstname', 'lastname',
+                  'plusones', 'member', 'timeslot',  'email']
+        labels = {
+                  'firstname': _('What is your first name?'),
+                  'lastname': _('Thanks, and what is your last?'),
+                  'member': _('Are you a member?'),
+                  'plusones': _('How many guests are you bringing?'),
+                  'timeslot': _('What time can we be expecting you?'),
+                  'email': _('To complete your request, please enter your email address'),
+        }
 
     def __init__(self, *args, **kwargs):
         # Set up guestlist

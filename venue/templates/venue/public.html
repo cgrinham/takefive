@@ -75,18 +75,10 @@
 
         label  {
             display: block;
-        }   
-
-        input[type=submit] {
-            display: block;
         }
 
         .clear {
             clear: both;
-        }
-
-        .center {
-            text-align: center;
         }
 
         h1, h2, h3 , h4, h5 {
@@ -131,6 +123,11 @@
             text-align: right;
         }
 
+        body {
+            background-color: black;
+            color:#eee;
+        }
+
         .metrics td {
             text-align: center;
         }
@@ -149,7 +146,6 @@
 
         section {
             margin-bottom: 50px;
-            border-bottom: 1px solid #ccc;
             padding: 10px;
             box-sizing: border-box;
         }
@@ -161,20 +157,66 @@
             padding-top: 30px;
         }
 
+        #guestlist {
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        label {
+            color: #81B8B9;
+            font-size: 1.3em;
+            margin: 80px 0 5px;
+        }
+
+        input[type=text], input[type=email], input[type=number] {
+            display: block;
+            margin: 0 auto;
+            padding: 10px;
+            text-align: center;
+            font-size: 2em;
+            border-width: 0 0 1px 0;
+            background-color: transparent;
+            border-color: #999;
+            color: #eee;
+        }
+
+        input[type=text]:active, input[type=text]:focus,
+        input[type=email]:active, input[type=email]:focus,
+        input[type=number]:active, input[type=number]:focus {
+            border-color: #eee;
+            outline: none;
+
+        }
+
+        input[type=submit] {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px;
+            font-size: 1.4em;
+        }
+
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
     </style>
 </head>
 <body>
-<div id="header">
-<a href="/venues"><h1>Home</h1></a>
+
 
 {% if user.username %}
+<div id="header">
+<a href="/venues"><h1>Home</h1></a>
 <div id="header-details">{{user.profile.company.name}}<br>
-Logged in as {{user.first_name}} {{user.last_name}}<br>
-    <a href="/logout">Logout</a></div>
-{% endif %}
+Logged in as {{user.first_name}} {{user.last_name}}</div>
 
 <div class="clear"></div>
 </div>
+{% endif %}
+
 
 <div id="content">
 {% block content %}{% endblock %}

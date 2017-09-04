@@ -1,18 +1,21 @@
-{% extends "venue/base.html" %}
+{% extends "venue/public.html" %}
 {% load staticfiles %}
 
 {% block content %}
-<h2>{{guestlistobj.event.name}}</h2>
-<h3>{{guestlistobj.event.datestart}}</h3>
+
 
 {% if thankyou %}
 
+<section id="guestlist" class="message">
+<h2>{{guestlistobj.event.name}}</h2>
+<h3>{{guestlistobj.event.datestart}}</h3>
 <h1>Thank you for joining the guest list for {{guestlistobj.event.name}}</h1>
 
 {% else %}
-
     {% if guestlistobj.listopen %}
-
+    <section id="guestlist">
+    <h2>{{guestlistobj.event.name}}</h2>
+    <h3>{{guestlistobj.event.datestart}}</h3>
     <form action="/venues/joinguestlist/{{guestlistobj.pk}}" method="post">
      {% csrf_token %}
      {{ form }}
@@ -21,11 +24,13 @@
     </form>
 
     {% else %}
-
-    <p>Sorry, the guest list is closed</p>
-
+    <section id="guestlist" class="message">
+        <h2>{{guestlistobj.event.name}}</h2>
+        <h3>{{guestlistobj.event.datestart}}</h3>
+        <p id="message">Sorry, the guest list is closed</p>
     {% endif %}
 
 {% endif %}
+</section>
 
 {% endblock %}

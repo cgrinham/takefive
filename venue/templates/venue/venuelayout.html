@@ -9,7 +9,7 @@
 <h4>Venue Layouts</h4>
 
     {% for layoutkey, layoutvalue in venuelayoutdict.items %}
-
+<section>
     <h5>{{layoutvalue.0.name}}</h5>
 
     <table>
@@ -28,9 +28,12 @@
         </tr>
         {% endfor %}
     </table>
-    <br><br><br>
+
+    <a href="createarea/{{layoutvalue.0.pk}}">New Layout Area</a>
+</section>
 
     {% endfor %}
+
 
 {% else %}
 

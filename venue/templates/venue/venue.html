@@ -3,26 +3,26 @@
 
 {% block content %}
 <h3>{{venue}}</h3>
+<a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newevent">Create Event</a> | <a href="{{venue.reference}}/layout">Venue Layout</a><br><br>
 
-<h4>Metrics</h4>
+<section>
+    <h4>Metrics</h4>
 
-<table class="metrics">
-    <tr>
-        <th>Guests Attended This Year</th>
-        <th>Guest Attendance Rate</th>
-    </tr>
-    <tr>
-        <td>12,634</td>
-        <td>85%</td>
-    </tr>
-</table>
-<br><br><br>
+    <table class="metrics">
+        <tr>
+            <th>Guests Attended This Year</th>
+            <th>Guest Attendance Rate</th>
+        </tr>
+        <tr>
+            <td>12,634</td>
+            <td>85%</td>
+        </tr>
+    </table>
+</section>
 
-<a href="/venues/newevent/{{venue.reference}}">Create Event</a><br><br>
-<a href="{{venue.reference}}/layout">Venue Layout</a><br><br>
 
+<section id="upcomingevents">
 {% if futureevents %}
-
 <h4>Upcoming Events:</h4>
 
 <table>
@@ -33,47 +33,46 @@
     </tr>
     {% for event in futureevents %}
     <tr>
-        <td><a href="/venues/event/{{event.pk}}">{{event.name}}</a></td>
+        <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{event.pk}}">{{event.name}}</a></td>
         <td>{{event.datestart}} {{event.timestart}}</td>
         <td>{{event.dateend}} {{event.timeend}}</td>
     </tr>
     {% endfor %}
 </table>
-
 {% else %}
-
 No upcoming events
 
 {% endif %}
-<br><br><br><br>
 
+</section>
+
+
+<section id="recurringevents">
+{% if recurringevents %}
 
 <h4>Recurring Events:</h4>
-
-
-{% if recurringevents %}
-<table>
-    <tr>
-        <th>Event Name</th>
-        <th>Start</th>
-        <th>End</th>
-    </tr>
-    {% for event in recurringevents %}
-    <tr>
-        <td><a href="/venues/event/{{event.pk}}">{{event.name}}</a></td>
-        <td>{{event.datestart}} {{event.timestart}}</td>
-        <td>{{event.dateend}} {{event.timeend}}</td>
-    </tr>
-    {% endfor %}
-</table>
-
+    <table>
+        <tr>
+            <th>Event Name</th>
+            <th>Start</th>
+            <th>End</th>
+        </tr>
+        {% for event in recurringevents %}
+        <tr>
+            <td><a href="/venues/event/{{event.pk}}">{{event.name}}</a></td>
+            <td>{{event.datestart}} {{event.timestart}}</td>
+            <td>{{event.dateend}} {{event.timeend}}</td>
+        </tr>
+        {% endfor %}
+    </table>
 {% else %}
 
 No upcoming recurring events
 
 {% endif %}
-<br><br><br><br>
+</section>
 
+<section id="pastevents">
 {% if pastevents %}
 <h4>Past Events:</h4>
 
@@ -96,6 +95,7 @@ No upcoming recurring events
 No past events
 
 {% endif %}
+</section>
 
 
 {% endblock %}

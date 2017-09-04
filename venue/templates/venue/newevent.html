@@ -4,7 +4,7 @@
 {% block content %}
 
 <h2>New Event</h2>
-<form action="/venues/{{company}}/{{venue}}/newevent" method="post">
+<form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newevent" method="post">
  {% csrf_token %}
  {{ form }}
  <input type="submit" value="Submit">
