@@ -1,6 +1,6 @@
 from django import forms
-import re
-from .models import Company, Venue, VenueLayout, Event, Guest, GuestList, AreaHireBooking
+from .models import Company, Venue, VenueLayout, Event, Guest, Member
+from .models import Membership, MembershipType, GuestList, AreaHireBooking
 from django.utils.translation import gettext_lazy as _
 
 
@@ -21,6 +21,7 @@ class NewVenueLayoutForm(forms.ModelForm):
         model = VenueLayout
         exclude = ['company', 'venue']
 
+
 class NewEventForm(forms.ModelForm):
     createguestlist = forms.BooleanField(initial=True)
 
@@ -33,7 +34,6 @@ class NewEventForm(forms.ModelForm):
         # Clean data
         cleaned_data = super(NewEventForm, self).clean()
 
-
         # Check event doesn't end before it starts
         datestart = self.cleaned_data.get("datestart")
         dateend = self.cleaned_data.get("dateend")
@@ -45,8 +45,6 @@ class NewEventForm(forms.ModelForm):
         if (timeend < timestart) and (datestart == dateend):
             msg = u"Event can't end before it has started! Please change End Time."
             self._errors["timeend"] = self.error_class([msg])
-
-
 
     def __init__(self, *args, **kwargs):
         super(NewEventForm, self).__init__(*args, **kwargs)
@@ -102,7 +100,6 @@ class JoinGuestListForm(forms.ModelForm):
         self.fields["timeslot"].widget = forms.CheckboxSelectMultiple()
         """
 
-
     def clean(self):
         # Clean data
         self.cleaned_data = super(JoinGuestListForm, self).clean()
@@ -124,6 +121,26 @@ class JoinGuestListForm(forms.ModelForm):
         if self.cleaned_data.get("plusones") > guestlistobj.maxplusones:
             msg = u"Sorry, the maximum number of additional guests allowed is %d" % guestlistobj.maxplusones
             self._errors["plusones"] = self.error_class([msg])
+
+
+class NewMembershipType(forms.ModelForm):
+    class Meta:
+        model = MembershipType
+        exclude = ['company', 'venue']
+
+
+class NewMemberForm(forms.Form):
+    firstname = forms.CharField(max_length=40)  # Member
+    lastname = forms.CharField(max_length=40)  # Member
+    email = forms.EmailField(max_length=254)  # Member
+    dateofbirth = forms.DateField()  # Member
+    #appearances - Set to 0
+    #member - Create the member then set member for membership
+    membershiptype = forms.ModelMultipleChoiceField(queryset=MembershipType.objects.all())  # Membership
+    # joined - set to date.now()
+    # expires - set to expiry date dependant on membership type
+    paid = forms.CharField(max_length=40)
+
 
 """
 class JoinGuestListForm(forms.Form):

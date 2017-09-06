@@ -2,7 +2,28 @@
 {% load staticfiles %}
 
 {% block content %}
-<h4><a href="/venues/{{company.reference}}/{{venue.reference}} ">{{event.venue.name}}</a></h4>
+<h4><a href="/venues/{{company.reference}}/{{venue.reference}} ">{{venue.name}}</a></h4>
+<section>
+<h5>Types of Member</h5>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Length</th>
+        <th>Members</th>
+    </tr>
+    {% for membershiptype in membershiptypes %}
+    <tr>
+        <td>{{membershiptype.name}}</td>
+        <td>{{membershiptype.price}}</td>
+        <td>{{membershiptype.length}}</td>
+        <td></td>
+    </tr>
+    {% endfor %}
+</table>
+</section>
+<section>
 <h5>Members</h5>
 
 <p>Total Members: {{members|length}}</p>
@@ -25,5 +46,5 @@
 <br>
 <a href="/venues/exportcsv/{{guestlist.pk}}">Export Members List[]</a>
 <a href="/gl/{{guestlist.pk}}">Membership Link[]</a>
-
+</section>
 {% endblock %}

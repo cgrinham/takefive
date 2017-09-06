@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, GuestList, Guest, Profile, Member, Membership
+from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event
+from .models import GuestList, Guest, Profile, Member, Membership, MembershipType
 # Register your models here.
 
 
@@ -36,8 +37,12 @@ class MemberAdmin(admin.ModelAdmin):
     fields = ['firstname', 'lastname', 'email', 'dateofbirth', 'appearances']
 
 
+class MembershipTypeAdmin(admin.ModelAdmin):
+    fields = ['company', 'venue', 'name', 'price', 'length']
+
+
 class MembershipAdmin(admin.ModelAdmin):
-    fields = ['member', 'venue', 'joined', 'expires', 'paid']
+    fields = ['member', 'membershiptype', 'starts', 'expires', 'paid']
 
 
 class GuestListAdmin(admin.ModelAdmin):
@@ -59,3 +64,4 @@ admin.site.register(Guest, GuestAdmin)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Member, MemberAdmin)
 admin.site.register(Membership, MembershipAdmin)
+admin.site.register(MembershipType, MembershipTypeAdmin)

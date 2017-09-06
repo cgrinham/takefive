@@ -5,8 +5,10 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest
-from .models import GuestList, Profile, Member, Membership
-from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm, NewGuestListForm, NewEventForm, JoinGuestListForm, AreaHireBookingForm
+from .models import GuestList, Profile, Member, Membership, MembershipType
+from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm
+from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
+from .forms import AreaHireBookingForm, NewMembershipType
 
 # Views
 
@@ -73,12 +75,16 @@ def members(request, company, venue):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
 
-    members = Membership.objects.filter(venue=venue)
+    membershiptypes = MembershipType.objects.filter(venue=venue)
+
+    for membershiptype in membershiptypes:
+        members = Membership.objects.filter(membershiptype=membershiptype)
 
     context = {
                'venue': venue,
                'company': company,
-               'members': members
+               'members': members,
+               'membershiptypes': membershiptypes,
                }
 
     return render(request, 'venue/members.html', context)
@@ -381,6 +387,65 @@ def newguestlist(request, event):
 
     return render(request, 'venue/newguestlist.html', context)
 
+
+def newmembershiptype(request, company, venue):
+    # Check if company owns a venue with this reference
+    # Check user is allowed to create events for this venue
+    company = Company.objects.get(reference=request.user.profile.company.reference)
+    venue = Venue.objects.get(reference=venue)
+    if request.method == 'POST':
+        # Creat a form instance and populate it with data from teh request
+        form = NewMembershipType(request.POST)
+
+        if form.is_valid():
+            newevent = form.save(commit=False)
+            newevent.company = company
+            newevent.venue = venue
+            newevent.save()
+
+            return HttpResponseRedirect('/venues/%s/%s' %
+                                        (company.reference, venue.reference))
+    else:
+        form = NewMembershipType()
+
+    context = {
+               'venue': venue,
+               'form': form
+               }
+
+    return render(request, 'venue/newmembershiptype.html', context)
+
+
+def newmember(request):
+    if request.method == 'POST':
+        # Creat a form instance and populate it with data from teh request
+        form = JoinGuestListForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+
+            send_mail('Thankyou for joining the guest list',
+                      """Dear %s,\n Thankyou for joining the guest list for %s,\n
+                       We looking forward to seeing you.\n
+                       Piano Bar Soho Team""" % (form.firstname, "hello"),
+                      'tf@christiegrinham.co.uk',
+                      [form.email],
+                      fail_silently=False,
+                      )
+
+            context = {
+                       'thankyou': True
+                       }
+
+            return render(request, 'venue/joinguestlist.html', context)
+    else:
+        form = JoinGuestListForm()
+
+    context = {
+               'form': form
+               }
+
+    return render(request, 'venue/joinguestlist.html', context)
 
 def joinguestlist(request, guestlist):
     guestlistobj = GuestList.objects.get(pk=guestlist)

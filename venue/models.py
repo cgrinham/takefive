@@ -86,6 +86,7 @@ class Event(models.Model):
     def __unicode__(self):
         return "%s - %s - %s" % (self.venue.name, self.datestart, self.name)
 
+
 # Holds title of guest lists for all events
 class GuestList(models.Model):
     company = models.ForeignKey(Company)
@@ -131,17 +132,30 @@ class Member(models.Model):
         return "%s %s" % (self.firstname, self.lastname)
 
 
+class MembershipType(models.Model):
+    company = models.ForeignKey(Company)
+    venue = models.ForeignKey(Venue)
+    name = models.CharField(max_length=254)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    length = models.CharField(max_length=10)
+    # Length notation
+    # YMD (years, months, weeks or days) followed by number of
+    # i.e. Y2 = 2 years, M3 = 3 Months
+
+    def __unicode__(self):
+        return self.name
+
+
 class Membership(models.Model):
     """ Membership relationships """
     member = models.ForeignKey(Member)
-    venue = models.ForeignKey(Venue)
-    joined = models.DateField("Date joined")
+    membershiptype = models.ForeignKey(MembershipType)
+    starts = models.DateField("Date started")
     expires = models.DateField("Membership expiry date")
     paid = models.BooleanField("Membership paid", default=False)
 
     def __unicode__(self):
-        return "%s %s at %s" % (self.member.firstname, self.member.lastname,
-                                self.venue.name)
+        return "%s %s" % (self.member.firstname, self.member.lastname)
 
 
 class AreaHireBooking(models.Model):
