@@ -86,7 +86,6 @@ class Event(models.Model):
     def __unicode__(self):
         return "%s - %s - %s" % (self.venue.name, self.datestart, self.name)
 
-
 # Holds title of guest lists for all events
 class GuestList(models.Model):
     company = models.ForeignKey(Company)

@@ -3,6 +3,7 @@ from datetime import datetime
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
+from django.contrib.auth.decorators import login_required
 from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest
 from .models import GuestList, Profile, Member, Membership
 from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm, NewGuestListForm, NewEventForm, JoinGuestListForm, AreaHireBookingForm
@@ -22,6 +23,7 @@ def index(request):
     return render(request, 'venue/index.html', context)
 
 
+@login_required
 def company(request, company):
 
     # companyname = get_object_or_404(Company, reference=company)
@@ -37,6 +39,7 @@ def company(request, company):
     return render(request, 'venue/company.html', context)
 
 
+@login_required
 def venue(request, company, venue):
     # companyname = get_object_or_404(Company, reference=company)
     company = Company.objects.get(reference=company)
@@ -64,6 +67,7 @@ def venue(request, company, venue):
     return render(request, 'venue/venue.html', context)
 
 
+@login_required
 def members(request, company, venue):
 
     company = Company.objects.get(reference=company)
@@ -80,6 +84,37 @@ def members(request, company, venue):
     return render(request, 'venue/members.html', context)
 
 
+def door(request, event):
+    event = Event.objects.get(pk=event)
+
+    if request.user.profile.company == event.company:
+        guestlists = GuestList.objects.filter(event=event)
+
+        allguests = {}
+
+        for guestlist in guestlists:
+            guests = Guest.objects.filter(guestlist=guestlist)
+            allguests[guestlist] = guests
+
+        #guests = [Guest.objects.get(pk=13), Guest.objects.get(pk=14)]
+
+        context = {
+                   'company': company,
+                   'venue': venue,
+                   'event': event,
+                   'guests': allguests,
+                   'guestlists': guestlists,
+                   }
+
+        return render(request, 'venue/door.html', context)
+    else:
+        context = {
+
+        }
+        return render(request, 'venue/venuelayout.html', context)
+
+
+@login_required
 def venuelayout(request, company, venue):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
@@ -102,6 +137,7 @@ def venuelayout(request, company, venue):
     return render(request, 'venue/venuelayout.html', context)
 
 
+@login_required
 def newvenuelayout(request, company, venue):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
@@ -130,6 +166,7 @@ def newvenuelayout(request, company, venue):
     return render(request, 'venue/newvenuelayout.html', context)
 
 
+@login_required
 def viewevent(request, company, venue, event):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
@@ -150,6 +187,7 @@ def viewevent(request, company, venue, event):
     return render(request, 'venue/viewevent.html', context)
 
 
+@login_required
 def viewguestlist(request, company, venue, guestlist):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
@@ -177,6 +215,7 @@ def viewguestlist(request, company, venue, guestlist):
     return render(request, 'venue/viewguestlist.html', context)
 
 
+@login_required
 def exportcsv(request, guestlist):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -225,6 +264,7 @@ def testpage(request):
     return render(request, 'venue/test.html')
 
 
+@login_required
 def newcompany(request):
 
     if request.method == 'POST':
@@ -252,7 +292,8 @@ def newcompany(request):
     return render(request, 'venue/newcompany.html', context)
 
 
-def newvenue(request):
+@login_required
+def newvenue(request, company):
 
     if request.method == 'POST':
         # Creat a form instance and populate it with data from the request
@@ -276,6 +317,7 @@ def newvenue(request):
     return render(request, 'venue/newvenue.html', context)
 
 
+@login_required
 def newevent(request, company, venue):
     # Check if company owns a venue with this reference
     # Check user is allowed to create events for this venue
@@ -313,6 +355,7 @@ def newevent(request, company, venue):
     return render(request, 'venue/newevent.html', context)
 
 
+@login_required
 def newguestlist(request, event):
 
     eventobj = Event.objects.get(pk=event)
@@ -358,7 +401,7 @@ def joinguestlist(request, guestlist):
 
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
-        form = JoinGuestListForm(request.POST, guestlistpk=5)
+        form = JoinGuestListForm(request.POST, guestlistpk=guestlist)
 
         if form.is_valid():
             form = form.save(commit=False)
@@ -382,7 +425,7 @@ def joinguestlist(request, guestlist):
 
             return render(request, 'venue/joinguestlist.html', context)
     else:
-        form = JoinGuestListForm(guestlistpk=5)
+        form = JoinGuestListForm(guestlistpk=guestlist)
 
     context = {'guestlistobj': guestlistobj,
                'guests': guestcount,
