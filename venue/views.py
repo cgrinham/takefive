@@ -294,6 +294,41 @@ def newevent(request, company, venue):
 
     return render(request, 'venue/newevent.html', context)
 
+def newrecurringevent(request, company, venue):
+    # Check if company owns a venue with this reference
+    # Check user is allowed to create events for this venue
+    company = Company.objects.get(reference=request.user.profile.company.reference)
+    venue = Venue.objects.get(reference=venue)
+    if request.method == 'POST':
+        # Creat a form instance and populate it with data from teh request
+        form = NewEventForm(request.POST)
+
+        if form.is_valid():
+            newevent = form.save(commit=False)
+            newevent.company = company
+            newevent.venue = venue
+            newevent.save()
+            if form.cleaned_data["createguestlist"] is True:
+                print("Let's make a guestlist!")
+                newguestlist = GuestList(company=company, venue=venue,
+                                         event=newevent,
+                                         name="%s Guestlist" %
+                                              form.cleaned_data["name"],
+                                         maxguests=newevent.venue.capacity)
+                newguestlist.save()
+            return HttpResponseRedirect('/venues/%s/%s' %
+                                        (company.reference, venue.reference))
+    else:
+        form = NewEventForm()
+
+    events = Event.objects.order_by('name')
+    context = {
+               'events': events,
+               'venue': venue,
+               'form': form
+               }
+
+    return render(request, 'venue/newevent.html', context)
 
 def newguestlist(request, event):
 
@@ -319,6 +354,7 @@ def newguestlist(request, event):
                }
 
     return render(request, 'venue/newguestlist.html', context)
+
 
 def joinguestlist(request, guestlist):
     guestlistobj = GuestList.objects.get(pk=guestlist)
