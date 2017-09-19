@@ -1,0 +1,52 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<h4><a href="/venues/{{company.reference}}/{{venue.reference}} ">{{venue.name}}</a></h4>
+<section>
+<h5>Types of Member</h5>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Length</th>
+        <th>Link</th>
+        <th>Members</th>
+    </tr>
+    {% for membershiptype in membershiptypes %}
+    <tr>
+        <td><a href="editmembership/{{membershiptype.pk}}">{{membershiptype.name}}</a></td>
+        <td>{{membershiptype.price}}</td>
+        <td>{{membershiptype.length}}</td>
+        <td><a href="/venues/join/{{membershiptype.pk}}">Join</a></td>
+        <td></td>
+    </tr>
+    {% endfor %}
+</table>
+</section>
+
+<section>
+<h5>Members</h5>
+
+<p>Total Members: {{members|length}}</p>
+<br><br>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Email Address</th>
+        <th>Appearances</th>
+    </tr>
+    {% for member in members %}
+    <tr>
+        <td>{{member.member.firstname}} {{member.member.lastname}}</td>
+        <td>{{member.member.email}}</td>
+        <td>{{member.member.appearances}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+<a href="/venues/exportcsv/{{guestlist.pk}}">Export Members List[]</a> | <a href="importmembers">Import Members</a> |
+</section>
+{% endblock %}

@@ -7,14 +7,14 @@
 {% if thankyou %}
 
 <section id="guestlist" class="message">
-<h2>{{guestlistobj.event.name}}</h2>
+<h2>{{guestlistobj.event.name}} - {{guestlistobj.name}}</h2>
 <h3>{{guestlistobj.event.datestart}}</h3>
 <h1>Thank you for joining the guest list for {{guestlistobj.event.name}}</h1>
 
 {% else %}
     {% if guestlistobj.listopen %}
     <section id="guestlist">
-    <h2>{{guestlistobj.event.name}}</h2>
+    <h2>{{guestlistobj.event.name}} - {{guestlistobj.name}}</h2>
     <h3>{{guestlistobj.event.datestart}}</h3>
     <form action="/venues/joinguestlist/{{guestlistobj.pk}}" method="post">
      {% csrf_token %}

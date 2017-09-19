@@ -1,0 +1,39 @@
+{% extends "venue/public.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+
+{% if thankyou %}
+
+<section id="newmember" class="message">
+    <h2>{{venue}} Membership Form</h2>
+    <h1>Thank you for joining us, we look forward to see you.</h1>
+
+{% else %}
+    {% if membershiptype.membershipopen %}
+        <section id="newmember">
+            <h2>{{venue}} Membership Form</h2>
+            <form action="join/" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit" value="Submit">
+
+            </form>
+
+    {% else %}
+        <section id="newmember" class="message">
+            <h2>{{venue}} Membership Form</h2>
+            <p id="message">Sorry, membership is closed.</p>
+    {% endif %}
+
+{% endif %}
+</section>
+<script>
+  $( function() {
+    $( ".datepicker" ).datepicker({
+        dateFormat: "dd/mm/yy"
+    });
+  } );
+</script>
+{% endblock %}

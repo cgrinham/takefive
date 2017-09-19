@@ -4,7 +4,7 @@
 <head>
     <title>TakeFive - Venue Administration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="{% static 'venue/js/jquery-3.2.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'venue/js/jquery-ui.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'venue/js/jquery.timepicker.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'venue/css/jquery-ui.css' %}">
@@ -125,6 +125,10 @@
 
         body {
             background-color: black;
+            background-image: url("{% static 'venue/img/twmpbs.jpg' %}");
+            background-size: 100%;
+            background-position: 0 87px;
+            background-repeat: no-repeat;
             color:#eee;
         }
 

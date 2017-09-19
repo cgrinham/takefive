@@ -1,15 +1,21 @@
-import csv, re
-from datetime import datetime
+import csv
+import re
+import datetime
+from dateutil.relativedelta import relativedelta
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
-from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest, GuestList, Profile
-from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm, NewGuestListForm, NewEventForm, JoinGuestListForm, AreaHireBookingForm
+from django.contrib.auth.decorators import login_required
+from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest
+from .models import GuestList, Profile, Member, Membership, MembershipType
+from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm
+from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
+from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
 
 # Views
 
-def index(request):
 
+def index(request):
     company = Company.objects.get(pk=1)
     venues = Venue.objects.filter(owner=company)
 
@@ -21,6 +27,7 @@ def index(request):
     return render(request, 'venue/index.html', context)
 
 
+@login_required
 def company(request, company):
 
     # companyname = get_object_or_404(Company, reference=company)
@@ -36,6 +43,7 @@ def company(request, company):
     return render(request, 'venue/company.html', context)
 
 
+@login_required
 def venue(request, company, venue):
     # companyname = get_object_or_404(Company, reference=company)
     company = Company.objects.get(reference=company)
@@ -48,7 +56,7 @@ def venue(request, company, venue):
     futureevents = []
 
     for event in events:
-        if event.dateend < datetime.now().date():
+        if event.dateend < datetime.datetime.now().date():
             pastevents.append(event)
         else:
             futureevents.append(event)
@@ -63,6 +71,58 @@ def venue(request, company, venue):
     return render(request, 'venue/venue.html', context)
 
 
+@login_required
+def members(request, company, venue):
+
+    company = Company.objects.get(reference=company)
+    venue = Venue.objects.get(reference=venue)
+
+    membershiptypes = MembershipType.objects.filter(venue=venue)
+
+    for membershiptype in membershiptypes:
+        members = Membership.objects.filter(membershiptype=membershiptype)
+
+    context = {
+               'venue': venue,
+               'company': company,
+               'members': members,
+               'membershiptypes': membershiptypes,
+               }
+
+    return render(request, 'venue/members.html', context)
+
+
+def door(request, event):
+    event = Event.objects.get(pk=event)
+
+    if request.user.profile.company == event.company:
+        guestlists = GuestList.objects.filter(event=event)
+
+        allguests = {}
+
+        for guestlist in guestlists:
+            guests = Guest.objects.filter(guestlist=guestlist)
+            allguests[guestlist] = guests
+
+        #guests = [Guest.objects.get(pk=13), Guest.objects.get(pk=14)]
+
+        context = {
+                   'company': company,
+                   'venue': venue,
+                   'event': event,
+                   'guests': allguests,
+                   'guestlists': guestlists,
+                   }
+
+        return render(request, 'venue/door.html', context)
+    else:
+        context = {
+
+        }
+        return render(request, 'venue/venuelayout.html', context)
+
+
+@login_required
 def venuelayout(request, company, venue):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
@@ -85,6 +145,7 @@ def venuelayout(request, company, venue):
     return render(request, 'venue/venuelayout.html', context)
 
 
+@login_required
 def newvenuelayout(request, company, venue):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
@@ -113,6 +174,7 @@ def newvenuelayout(request, company, venue):
     return render(request, 'venue/newvenuelayout.html', context)
 
 
+@login_required
 def viewevent(request, company, venue, event):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
@@ -133,6 +195,7 @@ def viewevent(request, company, venue, event):
     return render(request, 'venue/viewevent.html', context)
 
 
+@login_required
 def viewguestlist(request, company, venue, guestlist):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
@@ -160,6 +223,7 @@ def viewguestlist(request, company, venue, guestlist):
     return render(request, 'venue/viewguestlist.html', context)
 
 
+@login_required
 def exportcsv(request, guestlist):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -176,7 +240,8 @@ def exportcsv(request, guestlist):
 
     for guest in guests:
         row = [guest.firstname, guest.lastname, guest.email,
-               guest.member, guest.timeslot, guest.plusones, guest.notes, guest.arrived]
+               guest.member, guest.timeslot, guest.plusones,
+               guest.notes, guest.arrived]
         rows.append(row)
 
     print(rows)
@@ -207,6 +272,7 @@ def testpage(request):
     return render(request, 'venue/test.html')
 
 
+@login_required
 def newcompany(request):
 
     if request.method == 'POST':
@@ -234,7 +300,8 @@ def newcompany(request):
     return render(request, 'venue/newcompany.html', context)
 
 
-def newvenue(request):
+@login_required
+def newvenue(request, company):
 
     if request.method == 'POST':
         # Creat a form instance and populate it with data from the request
@@ -258,6 +325,7 @@ def newvenue(request):
     return render(request, 'venue/newvenue.html', context)
 
 
+@login_required
 def newevent(request, company, venue):
     # Check if company owns a venue with this reference
     # Check user is allowed to create events for this venue
@@ -295,6 +363,7 @@ def newevent(request, company, venue):
     return render(request, 'venue/newevent.html', context)
 
 
+@login_required
 def newguestlist(request, event):
 
     eventobj = Event.objects.get(pk=event)
@@ -320,6 +389,80 @@ def newguestlist(request, event):
 
     return render(request, 'venue/newguestlist.html', context)
 
+
+def newmembershiptype(request, company, venue):
+    # Check if company owns a venue with this reference
+    # Check user is allowed to create events for this venue
+    company = Company.objects.get(reference=request.user.profile.company.reference)
+    venue = Venue.objects.get(reference=venue)
+    if request.method == 'POST':
+        # Creat a form instance and populate it with data from teh request
+        form = NewMembershipType(request.POST)
+
+        if form.is_valid():
+            newevent = form.save(commit=False)
+            newevent.company = company
+            newevent.venue = venue
+            newevent.save()
+
+            return HttpResponseRedirect('/venues/%s/%s' %
+                                        (company.reference, venue.reference))
+    else:
+        form = NewMembershipType()
+
+    context = {
+               'venue': venue,
+               'form': form
+               }
+
+    return render(request, 'venue/newmembershiptype.html', context)
+
+
+def newmember(request):
+    mt = MembershipType.objects.get(pk=1)
+
+    if request.method == 'POST':
+        # Creat a form instance and populate it with data from teh request
+        form = NewMemberForm(request.POST)
+
+        if form.is_valid():
+
+            member = Member(
+                            firstname=form.cleaned_data['firstname'],
+                            lastname=form.cleaned_data['lastname'],
+                            email=form.cleaned_data['email'],
+                            dateofbirth=form.cleaned_data['dateofbirth']
+                            )
+            member.save()
+
+            membershiptype = MembershipType.objects.get(pk=form.cleaned_data['membershiptype'])
+
+            membership = Membership(
+                                    member=member,
+                                    membershiptype=membershiptype,
+                                    starts=datetime.date.today(),
+                                    expires=(datetime.date.today() +
+                                             relativedelta(years=1)),
+                                    paid=form.cleaned_data['paid'],
+                                    )
+
+            membership.save()
+
+            context = {
+                       'thankyou': True
+                       }
+
+            return render(request, 'venue/newmember.html', context)
+    else:
+        form = NewMemberForm()
+
+    context = {
+               'form': form,
+               'membershiptype': mt,
+               }
+
+    return render(request, 'venue/newmember.html', context)
+
 def joinguestlist(request, guestlist):
     guestlistobj = GuestList.objects.get(pk=guestlist)
 
@@ -339,7 +482,7 @@ def joinguestlist(request, guestlist):
 
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
-        form = JoinGuestListForm(request.POST, guestlistpk=5)
+        form = JoinGuestListForm(request.POST, guestlistpk=guestlist)
 
         if form.is_valid():
             form = form.save(commit=False)
@@ -363,7 +506,7 @@ def joinguestlist(request, guestlist):
 
             return render(request, 'venue/joinguestlist.html', context)
     else:
-        form = JoinGuestListForm(guestlistpk=5)
+        form = JoinGuestListForm(guestlistpk=guestlist)
 
     context = {'guestlistobj': guestlistobj,
                'guests': guestcount,
@@ -371,6 +514,7 @@ def joinguestlist(request, guestlist):
                }
 
     return render(request, 'venue/joinguestlist.html', context)
+
 
 def areahire(request):
 

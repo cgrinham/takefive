@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Door</title>
+    <style>
+        body {
+            background-color: black;
+            font-family: sans-serif;
+            padding: 0 10px;
+        }
+
+        section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        #search {
+            margin: 0 0 20px;
+            border-radius: 8px 0 0 8px;
+            padding: 6px;
+            border-width: 0;
+            outline: none;
+            display: inline-block;
+            width: calc(100% - 40px);
+            box-sizing: border-box;
+            vertical-align: middle;
+            height: 29px;
+        }
+
+        #scanner {
+            background-color: #ccc;
+            width: 38px;
+            height: 29px;
+            display: inline-block;
+            border-left: black 1px solid;
+            border-radius: 0 8px 8px 0;
+        }
+
+        table {
+            background-color: #aaa;
+            border-radius: 10px;
+            width: 100%;
+            border-collapse: collapse; /* Collapse borders */
+        }
+
+        td {
+            padding: 5px;
+        }
+
+        table tr:first-child td:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        table tr:first-child td:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        .arrived {
+            color: #3e3;
+        }
+
+        .notarrived {
+            color: #e33;
+        }
+
+        h3 {
+            color: white;
+        }
+
+        .attendance, .details {
+            text-align: center;
+        }
+
+        .divider td {
+            background-color: #fff4;
+        }
+
+        .lastname {
+            display: none;
+        }
+    </style>
+
+</head>
+<body>
+
+<h3>{{ event.name}}</h3>
+<section class="content">  
+<input type="text" id="search" placeholder="search..." onkeyup="filter()"><div id="scanner"></div>
+
+<table id="guests">
+    {% for guestlist, guests in guests.items %}
+        <tr class="divider">
+            <td>{{guestlist.name}}</td>
+            <td class="lastname"></td>
+            <td></td>
+            <td></td>
+        </tr>
+        {% for guest in guests %}
+        <tr>
+            <td class="name">{{guest.firstname}}</td>
+            <td class="lastname">{{guest.lastname}}</td>
+            <td class="attendance">
+                {% if guest.arrived == True %}
+                    <div class="arrived attendance-dot">&#9679;</div>
+                {% else %}
+                    <div class="notarrived attendance-dot">&#9679;</div>
+                {% endif %}
+            </td>
+            <td class="details">></td>
+        </tr>
+        {% endfor %}
+    {% endfor %}
+</table>
+</section>
+<script language="javascript" type="text/javascript">
+    function filter() {
+      // Declare variables 
+      var input, filter, table, tr, td, i;
+      input = document.getElementById("search");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("guests");
+      tr = table.getElementsByTagName("tr");
+
+      // Loop through all table rows, and hide those who don't match the search query
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+          if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        } 
+      }
+    }
+</script>
+</body>
+</html>
