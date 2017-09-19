@@ -1,6 +1,7 @@
 import csv
 import re
 import datetime
+from django.http import JsonResponse
 from dateutil.relativedelta import relativedelta
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
@@ -134,6 +135,20 @@ def door(request, event):
 
         }
         return render(request, 'venue/venuelayout.html', context)
+
+
+def doorajaxarrival(request):
+    guest = request.GET.get("guest", None)
+    guest = Guest.objects.get(pk=guest)
+    if guest.arrived is False:
+        guest.arrived = True
+    else:
+        guest.arrived = False
+    guest.save()
+    data = {
+        'success': guest.pk
+    }
+    return JsonResponse(data)
 
 
 @login_required
