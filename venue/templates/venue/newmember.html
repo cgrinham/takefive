@@ -7,14 +7,14 @@
 {% if thankyou %}
 
 <section id="newmember" class="message">
-    <h2>{{venue}} Membership Form</h2>
+    <h2>{{venue}} Membership Form - {{membershiptype.name}}</h2>
     <h1>Thank you for joining us, we look forward to see you.</h1>
 
 {% else %}
     {% if membershiptype.membershipopen %}
         <section id="newmember">
-            <h2>{{venue}} Membership Form</h2>
-            <form action="join/" method="post">
+            <h2>{{venue}} Membership Form - {{membershiptype.name}}</h2>
+            <form action="/venues/join/{{membershiptype.pk}}/" method="post">
                 {% csrf_token %}
                 {{ form }}
                 <input type="submit" value="Submit">
@@ -23,7 +23,7 @@
 
     {% else %}
         <section id="newmember" class="message">
-            <h2>{{venue}} Membership Form</h2>
+            <h2>{{venue}} Membership Form - {{membershiptype.name}}</h2>
             <p id="message">Sorry, membership is closed.</p>
     {% endif %}
 

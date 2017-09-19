@@ -141,6 +141,7 @@ class MembershipType(models.Model):
     length = models.CharField(max_length=10)
     membershipopen = models.BooleanField()
     hidden = models.BooleanField("Hidden membership type", default=False)
+    agerestriction = models.PositiveIntegerField(default=18)
     # Length notation
     # YMD (years, months, weeks or days) followed by number of
     # i.e. Y2 = 2 years, M3 = 3 Months

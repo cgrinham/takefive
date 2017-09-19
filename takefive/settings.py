@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'home',
     'members',
     'venue',
+    'venue.templatetags',
 )
 
 MIDDLEWARE_CLASSES = (

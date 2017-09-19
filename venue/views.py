@@ -12,6 +12,20 @@ from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm
 from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
 from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
 
+# Tools
+
+def countguests(guests):
+    # Get total amount of guests
+    # guests must be a Guest object
+    guestcount = 0
+    for guest in guests:
+        guestcount += guest.plusones
+    guestcount += len(guests)
+
+    return guestcount
+
+
+
 # Views
 
 
@@ -204,12 +218,7 @@ def viewguestlist(request, company, venue, guestlist):
     event = guestlist.event
 
     guests = Guest.objects.filter(guestlist=guestlist).order_by('firstname')
-
-    # Get total amount of guests
-    guestcount = 0
-    for guest in guests:
-        guestcount += guest.plusones
-    guestcount += len(guests)
+    guestcount = countguests(guests)
 
     context = {
                 'company': company,
@@ -418,8 +427,8 @@ def newmembershiptype(request, company, venue):
     return render(request, 'venue/newmembershiptype.html', context)
 
 
-def newmember(request):
-    mt = MembershipType.objects.get(pk=1)
+def newmember(request, membershiptype):
+    mt = MembershipType.objects.get(pk=membershiptype)
 
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
@@ -427,29 +436,28 @@ def newmember(request):
 
         if form.is_valid():
 
-            member = Member(
-                            firstname=form.cleaned_data['firstname'],
-                            lastname=form.cleaned_data['lastname'],
-                            email=form.cleaned_data['email'],
-                            dateofbirth=form.cleaned_data['dateofbirth']
+            m = Member(
+                       firstname=form.cleaned_data['firstname'],
+                       lastname=form.cleaned_data['lastname'],
+                       email=form.cleaned_data['email'],
+                       dateofbirth=form.cleaned_data['dateofbirth']
+                       )
+            m.save()
+
+            ms = Membership(
+                            member=m,
+                            membershiptype=mt,
+                            starts=datetime.date.today(),
+                            expires=(datetime.date.today() +
+                                     relativedelta(years=1)),
+                            paid=form.cleaned_data['paid'],
                             )
-            member.save()
 
-            membershiptype = MembershipType.objects.get(pk=form.cleaned_data['membershiptype'])
-
-            membership = Membership(
-                                    member=member,
-                                    membershiptype=membershiptype,
-                                    starts=datetime.date.today(),
-                                    expires=(datetime.date.today() +
-                                             relativedelta(years=1)),
-                                    paid=form.cleaned_data['paid'],
-                                    )
-
-            membership.save()
+            ms.save()
 
             context = {
-                       'thankyou': True
+                       'thankyou': True,
+                       'membershiptype': mt,
                        }
 
             return render(request, 'venue/newmember.html', context)

@@ -38,7 +38,7 @@ class MemberAdmin(admin.ModelAdmin):
 
 
 class MembershipTypeAdmin(admin.ModelAdmin):
-    fields = ['company', 'venue', 'name', 'price', 'length', 'hidden']
+    fields = ['company', 'venue', 'name', 'price', 'length', 'hidden', 'agerestriction']
 
 
 class MembershipAdmin(admin.ModelAdmin):

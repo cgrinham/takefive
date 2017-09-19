@@ -136,13 +136,7 @@ class NewMemberForm(forms.Form):
                                max_length=40)  # Member
     email = forms.EmailField(label="Please provide an email address so we can contact you",
                              max_length=254)  # Member
-    dateofbirth = forms.DateField(label="What is your date of birth?")  # Member
-
-    # appearances - Set to 0
-    # member - Create the member then set member for membership
-    membershiptype = forms.ModelMultipleChoiceField(queryset=MembershipType.objects.all())  # Membership
-    # joined - set to date.now()
-    # expires - set to expiry date dependant on membership type
+    dateofbirth = forms.DateField(label="What is your date of birth?", widget=forms.DateInput(attrs={'class': 'datepicker'}))  # Member
     paid = forms.BooleanField()
 
 
