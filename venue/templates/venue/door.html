@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,12 +57,16 @@
             border-top-right-radius: 10px;
         }
 
-        .arrived {
+        .green {
             color: #3e3;
         }
 
-        .notarrived {
+        .red {
             color: #e33;
+        }
+
+        .blue {
+            color: #33e;
         }
 
         h3 {
@@ -70,6 +75,7 @@
 
         .attendance, .details {
             text-align: center;
+            cursor: pointer;
         }
 
         .divider td {
@@ -95,16 +101,24 @@
             <td class="lastname"></td>
             <td></td>
             <td></td>
+            <td></td>
         </tr>
         {% for guest in guests %}
         <tr>
             <td class="name">{{guest.firstname}}</td>
             <td class="lastname">{{guest.lastname}}</td>
-            <td class="attendance">
-                {% if guest.arrived == True %}
-                    <div class="arrived attendance-dot">&#9679;</div>
+            <td class="paid">
+                {% if guest.paid == True %}
+                    <div class="green paid-dot">£</div>
                 {% else %}
-                    <div class="notarrived attendance-dot">&#9679;</div>
+                    <div class="red paid-dot">£</div>
+                {% endif %}
+            </td>
+            <td class="attendance" data-guest="{{guest.pk}}">
+                {% if guest.arrived == True %}
+                    <div class="green attendance-dot">&#9679;</div>
+                {% else %}
+                    <div class="red attendance-dot">&#9679;</div>
                 {% endif %}
             </td>
             <td class="details">></td>
@@ -113,6 +127,7 @@
     {% endfor %}
 </table>
 </section>
+<script src="{% static 'venue/js/jquery-3.2.1.min.js' %}"></script>
 <script language="javascript" type="text/javascript">
     function filter() {
       // Declare variables 
@@ -134,6 +149,33 @@
         } 
       }
     }
+    jQuery(document).ready(function() {
+        jQuery(function( $ ) {
+        
+            $(".attendance").on("click", function () {
+              var current = $(this)
+              current.children().toggleClass('red');
+
+              var guest = current.attr("data-guest");
+              
+              $.ajax({
+                      url: '/venues/ajax/doorarrival/',
+                      data: {
+                        'guest': guest
+                      },
+                      dataType: 'json',
+                      success: function () {
+                        current.children().toggleClass('green');
+                      }
+                    });
+            });
+
+            $(".paid").on("click", function () {
+              $(this).children().toggleClass('red');
+              $(this).children().toggleClass('green');
+            });
+        });
+    });
 </script>
 </body>
 </html>
