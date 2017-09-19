@@ -11,18 +11,21 @@
         <th>Name</th>
         <th>Price</th>
         <th>Length</th>
+        <th>Link</th>
         <th>Members</th>
     </tr>
     {% for membershiptype in membershiptypes %}
     <tr>
-        <td>{{membershiptype.name}}</td>
+        <td><a href="editmembership/{{membershiptype.pk}}">{{membershiptype.name}}</a></td>
         <td>{{membershiptype.price}}</td>
         <td>{{membershiptype.length}}</td>
+        <td><a href="/venues/join/{{membershiptype.pk}}">Join</a></td>
         <td></td>
     </tr>
     {% endfor %}
 </table>
 </section>
+
 <section>
 <h5>Members</h5>
 
@@ -44,7 +47,6 @@
 </table>
 
 <br>
-<a href="/venues/exportcsv/{{guestlist.pk}}">Export Members List[]</a>
-<a href="/gl/{{guestlist.pk}}">Membership Link[]</a>
+<a href="/venues/exportcsv/{{guestlist.pk}}">Export Members List[]</a> | <a href="importmembers">Import Members</a> |
 </section>
 {% endblock %}

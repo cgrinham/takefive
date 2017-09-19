@@ -1,5 +1,7 @@
-import csv, re
-from datetime import datetime
+import csv
+import re
+import datetime
+from dateutil.relativedelta import relativedelta
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
@@ -8,7 +10,7 @@ from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest
 from .models import GuestList, Profile, Member, Membership, MembershipType
 from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm
 from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
-from .forms import AreaHireBookingForm, NewMembershipType
+from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
 
 # Views
 
@@ -54,7 +56,7 @@ def venue(request, company, venue):
     futureevents = []
 
     for event in events:
-        if event.dateend < datetime.now().date():
+        if event.dateend < datetime.datetime.now().date():
             pastevents.append(event)
         else:
             futureevents.append(event)
@@ -417,35 +419,49 @@ def newmembershiptype(request, company, venue):
 
 
 def newmember(request):
+    mt = MembershipType.objects.get(pk=1)
+
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
-        form = JoinGuestListForm(request.POST)
+        form = NewMemberForm(request.POST)
 
         if form.is_valid():
-            form.save()
 
-            send_mail('Thankyou for joining the guest list',
-                      """Dear %s,\n Thankyou for joining the guest list for %s,\n
-                       We looking forward to seeing you.\n
-                       Piano Bar Soho Team""" % (form.firstname, "hello"),
-                      'tf@christiegrinham.co.uk',
-                      [form.email],
-                      fail_silently=False,
-                      )
+            member = Member(
+                            firstname=form.cleaned_data['firstname'],
+                            lastname=form.cleaned_data['lastname'],
+                            email=form.cleaned_data['email'],
+                            dateofbirth=form.cleaned_data['dateofbirth']
+                            )
+            member.save()
+
+            membershiptype = MembershipType.objects.get(pk=form.cleaned_data['membershiptype'])
+
+            membership = Membership(
+                                    member=member,
+                                    membershiptype=membershiptype,
+                                    starts=datetime.date.today(),
+                                    expires=(datetime.date.today() +
+                                             relativedelta(years=1)),
+                                    paid=form.cleaned_data['paid'],
+                                    )
+
+            membership.save()
 
             context = {
                        'thankyou': True
                        }
 
-            return render(request, 'venue/joinguestlist.html', context)
+            return render(request, 'venue/newmember.html', context)
     else:
-        form = JoinGuestListForm()
+        form = NewMemberForm()
 
     context = {
-               'form': form
+               'form': form,
+               'membershiptype': mt,
                }
 
-    return render(request, 'venue/joinguestlist.html', context)
+    return render(request, 'venue/newmember.html', context)
 
 def joinguestlist(request, guestlist):
     guestlistobj = GuestList.objects.get(pk=guestlist)

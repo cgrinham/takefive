@@ -114,7 +114,8 @@ class Guest(models.Model):
     member = models.BooleanField("Member")
     timeslot = models.CharField("Time Slot", max_length=50)
     plusones = models.PositiveIntegerField("Plus Ones", default=0)
-    notes = models.CharField("Additional information", max_length=140, blank=True)
+    notes = models.CharField("Additional information", max_length=140,
+                             blank=True)
     arrived = models.BooleanField("Arrived", default=False)
 
     def __unicode__(self):
@@ -138,6 +139,8 @@ class MembershipType(models.Model):
     name = models.CharField(max_length=254)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     length = models.CharField(max_length=10)
+    membershipopen = models.BooleanField()
+    hidden = models.BooleanField("Hidden membership type", default=False)
     # Length notation
     # YMD (years, months, weeks or days) followed by number of
     # i.e. Y2 = 2 years, M3 = 3 Months
