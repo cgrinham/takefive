@@ -16,6 +16,7 @@ from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
 # Tools
 
 def countguests(guests):
+    # Also available as a template filter
     # Get total amount of guests
     # guests must be a Guest object
     guestcount = 0
@@ -224,6 +225,23 @@ def viewevent(request, company, venue, event):
     return render(request, 'venue/viewevent.html', context)
 
 
+def toggleguestlistopen(request):
+    guestlistpk = request.GET.get("guestlist", None)
+    guestlist = GuestList.objects.get(pk=guestlistpk)
+    if guestlist.listopen is False:
+        colour = "green"
+        guestlist.listopen = True
+    else:
+        guestlist.listopen = False
+        colour = "red"
+    guestlist.save()
+    data = {
+        'success': guestlist.pk,
+        'colour': colour
+    }
+    return JsonResponse(data)
+
+
 @login_required
 def viewguestlist(request, company, venue, guestlist):
     company = Company.objects.get(reference=company)
@@ -255,7 +273,7 @@ def exportcsv(request, guestlist):
 
     writer = csv.writer(response)
     writer.writerow(['firstname', 'lastname', 'email',
-                    'member', 'timeslot', 'plusones', 'notes', 'arrived'])
+                    'member', 'timeslot', 'plusones', 'notes', 'listopen'])
 
     guestlist = GuestList.objects.get(pk=guestlist)
     guests = Guest.objects.filter(guestlist=guestlist).order_by('firstname')

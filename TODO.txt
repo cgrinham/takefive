@@ -1,6 +1,9 @@
 TODO
 
-Automatically set end date to after start date
+Bettter new event form
+- First choose one-off or recurring event
+- Name guestlist
+- Split into sections and beautify
 
 Don't allow a company to have two venues with the same name
 
@@ -8,9 +11,6 @@ Check if event is in the past for guestlist
 Open/Close guestlist
 Max guests
 
-Send email to new guests
-
-Fix new event datetime check!
 
 Employees
 
@@ -21,3 +21,5 @@ Intercom integration
 Redirect for people with overly large groups
 
 Delete/edit functions for all objects
+
+Walk ins?

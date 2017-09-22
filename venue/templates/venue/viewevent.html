@@ -1,11 +1,13 @@
 {% extends "venue/base.html" %}
 {% load staticfiles %}
+{% load guest_tools %}
 
 {% block content %}
 
 <a href="/venues/{{company.reference}}/{{venue.reference}}"><h3>{{venue}}</h3></a>
 <section>
-<h4>Event: {{event}} </h4>
+<h4>{{event.name}}</h4>
+<p>{{event.datestart}} at {{event.timestart}} until {{event.dateend}} at {{event.timeend}}</p><br>
 <p>{{event.description}}</p>
 </section>
 <section>
@@ -22,13 +24,48 @@ Guestlists:
             <a href="/venues/{{company.reference}}/{{venue.reference}}/guestlist/{{guestlist.pk}}">{{guestlist.name}}</a>
         </td>
         <td class="center">
-            {{ guestlist|length }}
+            {{ guestlist|countguests }}
         </td>
-        <td class="center">{{guestlist.listopen}}</td>
+        <td class="center listopen" data-guestlist="{{guestlist.pk}}">
+        {% if guestlist.listopen == True %}
+            <div class="green listopen-dot">&#9679;</div>
+        {% else %}
+            <div class="red listopen-dot">&#9679;</div>
+        {% endif %}
+        </td>
     </tr>
     {% endfor %}
 </table>
 
 <a href="/venues/newguestlist/{{event.pk}}">New Guest List</a>
 </section>
+<script>
+    jQuery(document).ready(function() {
+        jQuery(function( $ ) {
+        
+            $(".listopen").on("click", function () {
+              var current = $(this)
+              current.children().toggleClass('red');
+
+              var guestlist = current.attr("data-guestlist");
+              
+              $.ajax({
+                      url: '/venues/ajax/toggleguestlistopen/',
+                      data: {
+                        'guestlist': guestlist
+                      },
+                      dataType: 'json',
+                      success: function () {
+                        current.children().toggleClass('green');
+                      }
+                    });
+            });
+
+            $(".paid").on("click", function () {
+              $(this).children().toggleClass('red');
+              $(this).children().toggleClass('green');
+            });
+        });
+    });
+</script>
 {% endblock %}

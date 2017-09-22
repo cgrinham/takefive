@@ -59,7 +59,7 @@ No upcoming events
         </tr>
         {% for event in recurringevents %}
         <tr>
-            <td><a href="/venues/event/{{event.pk}}">{{event.name}}</a></td>
+            <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{event.pk}}">{{event.name}}</a></td>
             <td>{{event.datestart}} {{event.timestart}}</td>
             <td>{{event.dateend}} {{event.timeend}}</td>
         </tr>
@@ -84,7 +84,7 @@ No upcoming recurring events
     </tr>
     {% for event in pastevents %}
     <tr>
-        <td><a href="/venues/event/{{event.pk}}">{{event.name}}</a></td>
+        <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{event.pk}}">{{event.name}}</a></td>
         <td>{{event.datestart}} {{event.timestart}}</td>
         <td>{{event.dateend}} {{event.timeend}}</td>
     </tr>

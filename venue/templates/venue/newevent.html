@@ -4,12 +4,29 @@
 {% block content %}
 
 <h2>New Event</h2>
-<form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newevent" method="post">
- {% csrf_token %}
- {{ form }}
- <input type="submit" value="Submit">
-    
-</form>
+
+<div id="formselector">
+    <div id="oneoff">
+        <div class="cancel" style="display:none">X</div>
+        <h2>One-off event</h2>
+        <div class="form" style="display:none;">
+            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newevent" method="post">
+              {% csrf_token %}
+              {{ form }}
+              <input type="submit" value="Submit">
+                
+            </form>
+        </div>
+    </div><!-- this comment fixes whitespace issue
+    --><div id="recurring">
+        <div class="cancel" style="display:none">X</div>
+        <h2>Recurring event</h2>
+    </div>
+
+<div class="clear"></div>
+</div>
+
+
 
 <script>
   $( function() {
@@ -19,6 +36,33 @@
     $(".timepicker").timepicker({
         'timeFormat': 'H:i'
     });
+
+    $('#oneoff h2').on('click', function() {
+        var current = $(this).parent();
+        $('#recurring').hide();
+        $(current).css('width', '100%');
+        $('#oneoff .form').show();
+        $(current).children('.cancel').css('display', 'block');
+    });
+
+    $('#recurring h2').on('click', function() {
+        var current = $(this).parent();
+        $('#oneoff').hide();
+        $(current).css('width', '100%');
+        $(current).css('cursor', 'default');
+        $('#recurring .form').show();
+        $(current).children('.cancel').css('display', 'block');
+    });
+
+    $('.cancel').on('click', function() {
+        console.log("click");
+        $(this).css('display', 'none');
+        $('.form').hide();
+        $(this).parent().css('width', '50%');
+        $('#recurring, #oneoff').delay(208).show(0);
+    });
+
   } );
+
 </script>
 {% endblock %}

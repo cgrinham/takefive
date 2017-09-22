@@ -23,7 +23,7 @@ class NewVenueLayoutForm(forms.ModelForm):
 
 
 class NewEventForm(forms.ModelForm):
-    createguestlist = forms.BooleanField(initial=True)
+    createguestlist = forms.BooleanField(initial=True, label="Create guestlist?")
 
     class Meta:
         model = Event
@@ -46,7 +46,9 @@ class NewEventForm(forms.ModelForm):
             msg = u"Event can't end before it has started! Please change End Time."
             self._errors["timeend"] = self.error_class([msg])
 
+
     def __init__(self, *args, **kwargs):
+        kwargs.setdefault('label_suffix', '')  # globally override the Django >=1.6 default of ':'
         super(NewEventForm, self).__init__(*args, **kwargs)
         self.fields['datestart'].widget = forms.TextInput(attrs={
             'class': 'datepicker'})

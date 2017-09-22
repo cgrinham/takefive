@@ -2,14 +2,14 @@
 {% load staticfiles %}
 
 {% block content %}
-<h4>{{event.name}} at <a href="/venues/{{company.reference}}/{{venue.reference}} ">{{event.venue.name}}</a></h4>
-<h5>{{guestlist.name}}</h5>
+<h4><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{guestlist.event.pk}}">{{event.name}}</a> at <a href="/venues/{{company.reference}}/{{venue.reference}} ">{{event.venue.name}}</a></h4>
+<h5>{{guestlist.name}} -  {% if guestlist.listopen %}<span class="listopen green" data-guestlist="{{guestlist.pk}}">Open{% else %}<span class="listopen red" data-guestlist="{{guestlist.pk}}">Closed{% endif %}</span></h5>
 
 <p>Total Guests: {{guestcount}}</p>
 <br><br>
 <table>
     <tr>
-        <th>Event Name</th>
+        <th>Guest Name</th>
         <th>Email Address</th>
         <th>Plus Ones</th>
     </tr>
@@ -25,5 +25,35 @@
 <br>
 <a href="/venues/exportcsv/{{guestlist.pk}}">Export Guest List</a>
 <a href="/gl/{{guestlist.pk}}">Join Guest List Link</a>
+<script>
+    jQuery(document).ready(function() {
+        jQuery(function( $ ) {
+        
+            $(".listopen").on("click", function () {
+              var current = $(this)
 
+              var guestlist = current.attr("data-guestlist");
+              
+              $.ajax({
+                      url: '/venues/ajax/toggleguestlistopen/',
+                      data: {
+                        'guestlist': guestlist
+                      },
+                      dataType: 'json',
+                      success: function (data) {
+                        if (data.colour == "green") {
+                            current.text("Open");
+                            current.toggleClass('red');
+                            current.toggleClass('green');
+                        } else {
+                            current.text("Closed");
+                            current.toggleClass('red');
+                            current.toggleClass('green');
+                        }
+                    }
+                    });
+            });
+        });
+    });
+</script>
 {% endblock %}

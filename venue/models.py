@@ -117,6 +117,7 @@ class Guest(models.Model):
     notes = models.CharField("Additional information", max_length=140,
                              blank=True)
     arrived = models.BooleanField("Arrived", default=False)
+    source = models.CharField(max_length="100", default="internal")
 
     def __unicode__(self):
         return "%s %s" % (self.firstname, self.lastname)
