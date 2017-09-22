@@ -12,6 +12,7 @@ from .models import GuestList, Profile, Member, Membership, MembershipType
 from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm
 from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
 from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
+from .forms import NewRecurringEventForm
 
 # Tools
 
@@ -137,7 +138,7 @@ def door(request, event):
         }
         return render(request, 'venue/venuelayout.html', context)
 
-
+@login_required
 def doorajaxarrival(request):
     guest = request.GET.get("guest", None)
     guest = Guest.objects.get(pk=guest)
@@ -173,6 +174,22 @@ def venuelayout(request, company, venue):
                }
 
     return render(request, 'venue/venuelayout.html', context)
+
+@login_required
+def deletelayout(request):
+    try:
+        venuelayout = VenueLayout.objects.get(pk=request.GET.get("venuelayout", None))
+        VenueLayoutArea.objects.filter(layout=venuelayout).delete()
+        venuelayout.delete()
+        data = {
+            'success': 'success'
+        }
+    except:
+        data = {
+            'success': 'error'
+        }
+
+    return JsonResponse(data)
 
 
 @login_required
@@ -373,6 +390,26 @@ def newevent(request, company, venue):
     # Check user is allowed to create events for this venue
     company = Company.objects.get(reference=request.user.profile.company.reference)
     venue = Venue.objects.get(reference=venue)
+
+    oneoffform = NewEventForm()
+    recurringform = NewRecurringEventForm()
+
+    context = {
+               'venue': venue,
+               'oneoffform': oneoffform,
+               'recurringform': recurringform,
+               }
+
+    return render(request, 'venue/newevent.html', context)
+
+
+@login_required
+def newoneoffevent(request, company, venue):
+    # Check if company owns a venue with this reference
+    # Check user is allowed to create events for this venue
+    company = Company.objects.get(reference=request.user.profile.company.reference)
+    venue = Venue.objects.get(reference=venue)
+    error = False
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
         form = NewEventForm(request.POST)
@@ -392,18 +429,18 @@ def newevent(request, company, venue):
                 newguestlist.save()
             return HttpResponseRedirect('/venues/%s/%s' %
                                         (company.reference, venue.reference))
+        else:
+          error = True
     else:
-        form = NewEventForm()
+        error = True
 
-    events = Event.objects.order_by('name')
     context = {
-               'events': events,
                'venue': venue,
-               'form': form
+               'company': company,
+               'error': error,
                }
 
-    return render(request, 'venue/newevent.html', context)
-
+    return render(request, 'venue/newoneoffevent.html', context)
 
 @login_required
 def newguestlist(request, event):

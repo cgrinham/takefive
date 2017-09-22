@@ -2,6 +2,7 @@ from django import forms
 from .models import Company, Venue, VenueLayout, Event, Guest, Member
 from .models import Membership, MembershipType, GuestList, AreaHireBooking
 from django.utils.translation import gettext_lazy as _
+import datetime
 
 
 class NewCompanyForm(forms.ModelForm):
@@ -28,7 +29,7 @@ class NewEventForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = ['name', 'description', 'datestart', 'timestart',
-                  'dateend', 'timeend', 'recurring']
+                  'dateend', 'timeend']
 
     def clean(self):
         # Clean data
@@ -58,6 +59,14 @@ class NewEventForm(forms.ModelForm):
             'class': 'timepicker'})
         self.fields['timeend'].widget = forms.TextInput(attrs={
             'class': 'timepicker'})
+
+class NewRecurringEventForm(forms.Form):
+    eventname = forms.CharField(label="What is your event called?", max_length=254)
+    description = forms.CharField(widget=forms.Textarea, label="Give your event a description so people know what's going on")
+    datestart = forms.DateField(initial=datetime.date.today)
+    dateend = forms.DateField(initial=datetime.date.today)
+    timestart = forms.DateField()
+    timeend = forms.DateField()
 
 
 class NewGuestListForm(forms.ModelForm):

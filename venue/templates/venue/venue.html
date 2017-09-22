@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block content %}
-<h3>{{venue}}</h3>
+<h3>{{venue.name}}</h3>
 <a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newevent">Create Event</a> | <a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/layout">Venue Layout</a> | <a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/members">Members</a><br><br>
 
 <section>
@@ -25,17 +25,15 @@
 {% if futureevents %}
 <h4>Upcoming Events:</h4>
 
-<table>
+<table class="events">
     <tr>
-        <th>Event Name</th>
         <th>Start</th>
-        <th>End</th>
+        <th>Event Name</th>
     </tr>
     {% for event in futureevents %}
     <tr>
+        <td>{{event.datestart| date:'d/m/Y'}} - {{event.timestart}}</td>
         <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{event.pk}}">{{event.name}}</a></td>
-        <td>{{event.datestart}} {{event.timestart}}</td>
-        <td>{{event.dateend}} {{event.timeend}}</td>
     </tr>
     {% endfor %}
 </table>
@@ -51,17 +49,15 @@ No upcoming events
 {% if recurringevents %}
 
 <h4>Recurring Events:</h4>
-    <table>
+    <table class="events">
         <tr>
             <th>Event Name</th>
-            <th>Start</th>
-            <th>End</th>
+            <th>Next Event</th>
         </tr>
         {% for event in recurringevents %}
         <tr>
             <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{event.pk}}">{{event.name}}</a></td>
-            <td>{{event.datestart}} {{event.timestart}}</td>
-            <td>{{event.dateend}} {{event.timeend}}</td>
+            <td>{{event.datestart| date:'d/m/Y'}} {{event.timestart}}</td>
         </tr>
         {% endfor %}
     </table>
@@ -76,17 +72,15 @@ No upcoming recurring events
 {% if pastevents %}
 <h4>Past Events:</h4>
 
-<table>
+<table class="events">
     <tr>
+        <th>Date</th>
         <th>Event Name</th>
-        <th>Start</th>
-        <th>End</th>
     </tr>
     {% for event in pastevents %}
     <tr>
+        <td>{{event.datestart| date:'d/m/Y'}}</td>
         <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{event.pk}}">{{event.name}}</a></td>
-        <td>{{event.datestart}} {{event.timestart}}</td>
-        <td>{{event.dateend}} {{event.timeend}}</td>
     </tr>
     {% endfor %}
 </table>

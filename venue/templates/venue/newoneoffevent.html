@@ -1,0 +1,17 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<h2>New Event</h2>
+
+<div id="formselector">
+{% if error %}
+<h2>Sorry, something went wrong...</h2>
+<a href="/venues/{{company.reference}}/{{venue.reference}}/newevent">Go back to the event form</a>
+{% else %}
+<h2>Thanks, your new event has been created</h2>
+{% endif %}
+</div>
+
+{% endblock %}

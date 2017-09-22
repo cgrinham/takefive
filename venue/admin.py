@@ -29,7 +29,6 @@ class EventAdmin(admin.ModelAdmin):
                 ('Event', {'fields': ['company', 'venue', 'name', 'description']}),
                 ('Date & Time', {'fields': ['datestart', 'timestart',
                                  'dateend', 'timeend']}),
-                ('Recurrance', {'fields': ['recurring']})
     ]
 
 

@@ -2,17 +2,40 @@
 {% load staticfiles %}
 
 {% block content %}
-
-<h2>New Event</h2>
-
-<div id="formselector">
+<h3><a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}">{{venue.name}}</a> - New Event</h3>
+<section id="formselector">
     <div id="oneoff">
         <div class="cancel" style="display:none">X</div>
         <h2>One-off event</h2>
         <div class="form" style="display:none;">
-            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newevent" method="post">
+            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newoneoffevent/" method="post">
               {% csrf_token %}
-              {{ form }}
+              <table class="formtable">
+                  <tr>
+                      <th>Label</th>
+                      <th>Input</th>
+                  </tr>
+                  <tr>
+                      <td>{{ oneoffform.name.label_tag }}</td>
+                      <td>{{ oneoffform.name }}</td>
+                  </tr>
+                  <tr>
+                      <td>Wite a bit about your event so people know what's going on.</td>
+                      <td>{{ oneoffform.description }}</td>
+                  </tr>
+                  <tr>
+                      <td>What time does your event start?</td>
+                      <td>{{oneoffform.datestart}}{{oneoffform.timestart}}</td>
+                  </tr>
+                  <tr>
+                      <td>What time does your event end?</td>
+                      <td>{{oneoffform.dateend}}{{oneoffform.timeend}}</td>
+                  </tr>
+                  <tr>
+                      <td>Create default guestlist?</td>
+                      <td>{{oneoffform.createguestlist}}</td>
+                  </tr>
+              </table>
               <input type="submit" value="Submit">
                 
             </form>
@@ -21,11 +44,18 @@
     --><div id="recurring">
         <div class="cancel" style="display:none">X</div>
         <h2>Recurring event</h2>
+        <div class="form" style="display:none;">
+            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newevent" method="post">
+              {% csrf_token %}
+              {{ recurringform }}
+              <input type="submit" value="Submit">
+                
+            </form>
+        </div>
     </div>
 
 <div class="clear"></div>
-</div>
-
+</section>
 
 
 <script>

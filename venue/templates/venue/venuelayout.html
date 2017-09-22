@@ -2,14 +2,14 @@
 {% load staticfiles %}
 
 {% block content %}
-<a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}"><h3>{{venue}}</h3></a><br>
+<h3><a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}">{{venue.name}}</a> - Venue Layouts</h3>
 
 {% if venuelayoutdict %}
-
-<h4>Venue Layouts</h4>
+<a href="layout/create">Create layout</a><br><br>
 
     {% for layoutkey, layoutvalue in venuelayoutdict.items %}
-<section>
+<section data-venuelayout="{{layoutvalue.0.pk}}">
+    <div class="delete">delete layout</div>
     <h5>{{layoutvalue.0.name}}</h5>
 
     <table>
@@ -41,8 +41,43 @@
 
 {% endif %}
 
-<br><br>
-<a href="layout/create">Create layout</a>
-<br><br><br><br>
+<div id="confirmation" style="display:none">
+    <div class="messagebox">
+        <p>Are you sure you'd like to <span class="action"></span>?</p>
+
+        <span class="yes">Yes</span> | <span class="no">No</span>
+    </div>
+</div>
+<script>
+jQuery(document).ready(function() {
+    jQuery(function( $ ) {
+        
+        $(".delete").on("click", function () {
+        $('#confirmation .action').text('delete this layout')
+        $('#confirmation').show();
+        /*
+
+          var current = $(this).parent();
+
+          var venuelayout = current.attr("data-venuelayout");
+
+          $.ajax({
+                  url: '/venues/ajax/deletelayout/',
+                  data: {
+                    'venuelayout': venuelayout
+                  },
+                  dataType: 'json',
+                  success: function (data) {
+                    if (data.success == 'success') {
+                        current.hide();
+                    } else {
+                        alert("Error!");
+                    }
+                  }
+            });*/
+        });
+    });
+});
+</script>
 
 {% endblock %}

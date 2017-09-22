@@ -12,7 +12,7 @@ class Company(models.Model):
     created = models.DateTimeField(editable=False, default=now)
 
     def __unicode__(self):
-        return self.name
+        return self.reference
 
 
 class Profile(models.Model):
@@ -42,7 +42,7 @@ class Venue(models.Model):
     defaultplusones = models.PositiveIntegerField("Default max Plus Ones")
 
     def __unicode__(self):
-        return self.name
+        return self.reference
 
 
 # Venue Layout for Area Reservation
@@ -67,6 +67,18 @@ class VenueLayoutArea(models.Model):
 
     def __unicode__(self):
         return "%s %s" (self.venue.name, self.name)
+ 
+
+class AreaHireBooking(models.Model):
+    company = models.ForeignKey(Company)
+    venue = models.ForeignKey(Venue)
+    area = models.ForeignKey(VenueLayoutArea)
+    firstname = models.CharField("First Name", max_length=50)
+    lastname = models.CharField("Last Name", max_length=50)
+    email = models.EmailField("Email Address", max_length=254)
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phone = models.CharField(validators=[phone_regex], blank=True,
+                             max_length=18)  # validators should be a list
 
 
 # Holds all Events for all venues
@@ -81,10 +93,39 @@ class Event(models.Model):
     timeend = models.TimeField("Event End Time")
     # venuelayout = models.ForeignKey(VenueLayout)
     # Time slots needed
-    recurring = models.BooleanField("Recurring event")
 
     def __unicode__(self):
         return "%s - %s - %s" % (self.venue.name, self.datestart, self.name)
+
+class RecurringEvent(models.Model):
+    company = models.ForeignKey(Company)
+    venue = models.ForeignKey(Venue)
+    name = models.CharField("Event Name", max_length=120)
+    description = models.TextField("Description")
+    datestart = models.DateField("Event Start Date")
+    timestart = models.TimeField("Event Start Time")
+    dateend = models.DateField("Event End Date")
+    timeend = models.TimeField("Event End Time")
+    monday = models.BooleanField("Recurs on Mondays")
+    tuesday = models.BooleanField("Recurs on Tuesdays")
+    wednesday = models.BooleanField("Recurs on Wednesdays")
+    thursday = models.BooleanField("Recurs on Thursdays")
+    friday = models.BooleanField("Recurs on Fridays")
+    saturday = models.BooleanField("Recurs on Saturdays")
+    sunday = models.BooleanField("Recurs on Sundays")
+
+    def __unicode__(self):
+        return "%s - %s - %s" % (self.venue.name, self.datestart, self.name)
+
+
+class RecurringEventDates(models.Model):
+    company = models.ForeignKey(Company)
+    venue = models.ForeignKey(Venue)
+    event = models.ForeignKey(RecurringEvent)
+    datestart = models.DateField("Event Start Date")
+    timestart = models.TimeField("Event Start Time")
+    dateend = models.DateField("Event End Date")
+    timeend = models.TimeField("Event End Time")
 
 
 # Holds title of guest lists for all events
@@ -161,15 +202,3 @@ class Membership(models.Model):
 
     def __unicode__(self):
         return "%s %s" % (self.member.firstname, self.member.lastname)
-
-
-class AreaHireBooking(models.Model):
-    company = models.ForeignKey(Company)
-    venue = models.ForeignKey(Venue)
-    area = models.ForeignKey(VenueLayoutArea)
-    firstname = models.CharField("First Name", max_length=50)
-    lastname = models.CharField("Last Name", max_length=50)
-    email = models.EmailField("Email Address", max_length=254)
-    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-    phone = models.CharField(validators=[phone_regex], blank=True,
-                             max_length=18)  # validators should be a list

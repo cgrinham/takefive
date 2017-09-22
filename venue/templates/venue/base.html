@@ -104,6 +104,7 @@
 
         h3 {
             font-size: 1.6em;
+            text-transform: lowercase;
         }
 
         h4 {
@@ -114,17 +115,23 @@
             font-size: 1.2em;
         }
 
+        a {
+            text-decoration: none;
+        }
+
         #header {
             display: block;
             width:  100%;
             background-color: #acc;
-            padding:  20px;
+            padding:  10px;
             box-sizing: border-box;
+            border-bottom: solid 1px #8aa;
         }
 
-        #header h1 {
+        #header h5 {
             float: left;
             clear: both;
+            margin-bottom: 0;
         }
 
         #header-details {
@@ -141,8 +148,20 @@
             margin-bottom: 20px;
         }
 
+        tr {
+            border-bottom: solid 1px #eee;
+        }
+
+        tr:first-child {
+            border-bottom-color: #ddd;
+        }
+
         td, th {
             padding: 10px;
+        }
+
+        table.events td:first-child {
+            text-align: center;
         }
 
         p {
@@ -150,10 +169,13 @@
         }
 
         section {
-            margin-bottom: 50px;
-            border-bottom: 1px solid #ccc;
+            margin-bottom: 20px;
+            background-color: #fdfdfd;
+            border: 1px solid #ccc;
+            border-radius: 3px;
             padding: 10px;
             box-sizing: border-box;
+            position: relative;
         }
 
         #content {
@@ -181,7 +203,6 @@
 
         /* New Event */
         #formselector {
-            background-color: #d9d9d9;
             width: 100%;
             border-width: 1px;
             border-color: #999;
@@ -197,11 +218,26 @@
             border-color: #666;
             border-style: solid;
             padding: 30px;
-            background-color: #dfdfdf;
+            background-color: #acc;
             cursor: pointer;
-            transition: width 0.2s;
+            transition: width 0.2s, background-color 0.1s;
             display: inline-block;
             position: relative;
+        }
+
+        #oneoff {
+            float: left;
+            left: 0;
+            border-right-width: 0;
+        }
+
+        #recurring {
+            float: right;
+            right: 0;
+        }
+
+        #oneoff:hover, #recurring:hover {
+            background-color: #bdd;
         }
 
         .cancel {
@@ -215,34 +251,57 @@
             cursor: pointer;
         }
 
-        #oneoff {
-            float: left;
-            left: 0;
-        }
-
-        #recurring {
-            float: right;
-            right: 0;
-        }
-
-        #oneoff:hover, #recurring:hover {
-            background-color: #e9e9e9;
-        }
-
         #oneoff h2, #recurring h2 {
             text-align: center;
             vertical-align: middle;
+        }
+
+        .formtable th {
+            visibility: hidden;
+        }
+
+        .formtable tr td:first-child {
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        .delete {
+            font-weight: lighter;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            color: #f77;
+        }
+
+        #confirmation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width:  100%;
+            height: 100vh;
+            background-color: #0004;
+        }
+
+        #confirmation .messagebox {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 3px;
+            border: solid 1px #ddd;
         }
     </style>
 </head>
 <body>
 <div id="header">
-<a href="/venues"><h1>Home</h1></a>
+<a href="/venues"><h5>Home</h5></a>
 
 {% if user.username %}
-<div id="header-details">{{user.profile.company.name}}<br>
-Logged in as {{user.first_name}} {{user.last_name}}<br>
-    <a href="/logout">Logout</a></div>
+<div id="header-details">{{user.profile.company.name}} - {{user.first_name}} {{user.last_name}} | <a href="/logout">Logout</a></div>
 {% endif %}
 
 <div class="clear"></div>
