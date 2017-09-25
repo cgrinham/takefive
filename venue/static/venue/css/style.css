@@ -1,0 +1,377 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+    background-color: #f9f9f9;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+label  {
+    display: block;
+}   
+
+input[type=submit] {
+    display: block;
+}
+
+.clear {
+    clear: both;
+}
+
+.center {
+    text-align: center;
+}
+
+h1, h2, h3 , h4, h5 {
+    margin-bottom:  15px;
+}
+
+h1 {
+    font-size: 2em;
+}
+
+h2 {
+    font-size: 1.8em;
+}
+
+h3 {
+    font-size: 1.6em;
+    text-transform: lowercase;
+}
+
+h4 {
+    font-size: 1.4em;
+}
+
+h5 {
+    font-size: 1.2em;
+}
+
+a {
+    text-decoration: none;
+    color: #577;
+}
+
+a:visited {
+    color: #577;
+}
+
+#header {
+    display: block;
+    width:  100%;
+    background-color: #acc;
+    padding:  10px;
+    box-sizing: border-box;
+    border-bottom: solid 1px #8aa;
+}
+
+#header h5 {
+    float: left;
+    clear: both;
+    margin-bottom: 0;
+}
+
+#header-details {
+    float: right;
+    text-align: right;
+}
+
+.metrics td {
+    text-align: center;
+}
+
+table {
+    width:  100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+tr {
+    border-bottom: solid 1px #eee;
+}
+
+tr:first-child {
+    border-bottom-color: #ddd;
+}
+
+td, th {
+    padding: 10px;
+}
+
+table.events td:first-child {
+    text-align: center;
+}
+
+p {
+    margin-bottom: 10px;
+}
+
+section {
+    margin-bottom: 20px;
+    background-color: #fdfdfd;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 10px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+#content {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding-top: 30px;
+}
+
+.green {
+    color: #3e3;
+}
+
+.red {
+    color: #e33;
+}
+
+.blue {
+    color: #33e;
+}
+
+.listopen {
+    cursor: pointer;
+}
+
+/* New Event */
+#formselector {
+    width: 100%;
+    border-width: 1px;
+    border-color: #999;
+    border-style: solid;
+    box-sizing: border-box;
+    padding: 30px;
+}
+
+#oneoff, #recurring {
+    width: 50%;
+    box-sizing: border-box;
+    border-width: 1px;
+    border-color: #666;
+    border-style: solid;
+    padding: 30px;
+    background-color: #acc;
+    cursor: pointer;
+    transition: width 0.2s, background-color 0.1s;
+    display: inline-block;
+    position: relative;
+}
+
+#oneoff {
+    float: left;
+    left: 0;
+    border-right-width: 0;
+}
+
+#recurring {
+    float: right;
+    right: 0;
+}
+
+#oneoff:hover, #recurring:hover {
+    background-color: #bdd;
+}
+
+.cancel {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-weight: bolder;
+    cursor: pointer;
+}
+
+/* END NEW EVENT */
+
+.button {
+    cursor: pointer;
+}
+
+#oneoff h2, #recurring h2 {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.formtable th {
+    visibility: hidden;
+}
+
+.formtable tr td:first-child {
+    text-align: right;
+    vertical-align: middle;
+}
+
+.delete {
+    font-weight: lighter;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+    color: #f77;
+}
+
+/* CONFIRMATION DIALOG */
+
+#confirmation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width:  100%;
+    height: 100vh;
+    background-color: #0004;
+}
+
+#confirmation .messagebox {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background-color: #eee;
+    padding: 30px;
+    border-radius: 3px;
+    border: solid 1px #ddd;
+}
+
+/* END CONFIRMATION DIALOG */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+label  {
+    display: block;
+}
+
+.clear {
+    clear: both;
+}
+
+body.public {
+    background-color: black;
+    background-image: url("{% static 'venue/img/twmpbs.jpg' %}");
+    background-size: 100%;
+    background-position: 0 87px;
+    background-repeat: no-repeat;
+    color:#eee;
+}
+
+.metrics td {
+    text-align: center;
+}
+
+table {
+    width:  100%;
+}
+
+td, th {
+    padding: 10px;
+}
+
+p {
+    margin-bottom: 10px;
+}
+
+section {
+    margin-bottom: 50px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#content {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding-top: 30px;
+}
+
+#guestlist {
+    text-align: center;
+    font-family: sans-serif;
+}
+
+label {
+    color: #81B8B9;
+    font-size: 1.3em;
+    margin: 80px 0 5px;
+}
+
+input[type=text], input[type=email], input[type=number] {
+    display: block;
+    margin: 0 auto;
+    padding: 10px;
+    text-align: center;
+    font-size: 2em;
+    border-width: 0 0 1px 0;
+    background-color: transparent;
+    border-color: #999;
+    color: #eee;
+    font-weight:100;
+}
+
+input[type=text]:active, input[type=text]:focus,
+input[type=email]:active, input[type=email]:focus,
+input[type=number]:active, input[type=number]:focus {
+    border-color: #eee;
+    outline: none;
+
+}
+
+input[type=submit] {
+    display: block;
+    margin: 20px auto 0;
+    padding: 10px;
+    font-size: 1.4em;
+}
+
+.message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

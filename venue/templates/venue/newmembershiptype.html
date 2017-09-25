@@ -7,7 +7,7 @@
 <h3>{{event.name}}</h3>
 
 
-<form action="/venues/newguestlist/{{event.pk}}" method="post">
+<form action="/venues/{{company}}/{{venue}}/members/newtype/" method="post">
  {% csrf_token %}
  {{ form }}
  <input type="submit" value="Submit">

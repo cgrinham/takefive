@@ -8,7 +8,7 @@
         <div class="cancel" style="display:none">X</div>
         <h2>One-off event</h2>
         <div class="form" style="display:none;">
-            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newoneoffevent/" method="post">
+            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/event/newoneoff" method="post">
               {% csrf_token %}
               <table class="formtable">
                   <tr>
@@ -45,7 +45,7 @@
         <div class="cancel" style="display:none">X</div>
         <h2>Recurring event</h2>
         <div class="form" style="display:none;">
-            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newevent" method="post">
+            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/event/newrecurring" method="post">
               {% csrf_token %}
               {{ recurringform }}
               <input type="submit" value="Submit">

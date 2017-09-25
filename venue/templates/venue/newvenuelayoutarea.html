@@ -5,7 +5,7 @@
 
 <h2>New Venue Layout</h2>
 
-<form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/layout/create/" method="post">
+<form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/layout/createarea/{{layout}}" method="post">
  {% csrf_token %}
  {{ form }}
  <input type="submit" value="Submit">

@@ -5,10 +5,10 @@
 <h3><a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}">{{venue.name}}</a> - Venue Layouts</h3>
 
 {% if venuelayoutdict %}
-<a href="layout/create">Create layout</a><br><br>
+<a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/layout/create/">Create layout</a><br><br>
 
     {% for layoutkey, layoutvalue in venuelayoutdict.items %}
-<section data-venuelayout="{{layoutvalue.0.pk}}">
+<section data-venuelayout="{{layoutvalue.0.pk}}" class="layout-{{layoutvalue.0.pk}}">
     <div class="delete">delete layout</div>
     <h5>{{layoutvalue.0.name}}</h5>
 
@@ -29,7 +29,7 @@
         {% endfor %}
     </table>
 
-    <a href="createarea/{{layoutvalue.0.pk}}">New Layout Area</a>
+    <a href="/venues/{{company}}/{{venue}}/layout/createarea/{{layoutvalue.0.pk}}">New Layout Area</a>
 </section>
 
     {% endfor %}
@@ -43,39 +43,59 @@
 
 <div id="confirmation" style="display:none">
     <div class="messagebox">
+        <div class="cancel">x</div>
         <p>Are you sure you'd like to <span class="action"></span>?</p>
 
-        <span class="yes">Yes</span> | <span class="no">No</span>
+        <button class="yes" data-action="" data-value="">Yes</button><button class="no">No</button>
     </div>
 </div>
 <script>
 jQuery(document).ready(function() {
     jQuery(function( $ ) {
+
+        $('#confirmation .cancel, #confirmation .no').on("click", function(){
+            $('#confirmation').hide();
+        })
+
         
         $(".delete").on("click", function () {
-        $('#confirmation .action').text('delete this layout')
-        $('#confirmation').show();
-        /*
 
-          var current = $(this).parent();
+            var current = $(this).parent();
+            var venuelayout = current.attr("data-venuelayout");
 
-          var venuelayout = current.attr("data-venuelayout");
-
-          $.ajax({
-                  url: '/venues/ajax/deletelayout/',
-                  data: {
-                    'venuelayout': venuelayout
-                  },
-                  dataType: 'json',
-                  success: function (data) {
-                    if (data.success == 'success') {
-                        current.hide();
-                    } else {
-                        alert("Error!");
-                    }
-                  }
-            });*/
+            $('#confirmation .action').text('delete this layout')
+            $('#confirmation').show();
+            $('#confirmation .yes').attr('data-action', 'delete');
+            $('#confirmation .yes').attr('data-value', venuelayout);
         });
+
+        $('.yes').on('click', function(){
+            var current = $(this)
+
+            if (current.attr('data-action') == 'delete'){
+                $.ajax({
+                    url: '/venues/ajax/deletelayout/',
+                    data: {
+                      'venuelayout': current.attr('data-value')
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                      if (data.success == 'success') {
+                          $('.layout-' + current.attr('data-value')).fadeOut('slow');
+                          $('#confirmation').hide();
+                      } else {
+                          alert("Error!");
+                      }
+                    }
+                });
+
+            } else {
+                alert('woops');
+            }
+
+            
+            
+        })
     });
 });
 </script>

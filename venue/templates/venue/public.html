@@ -109,13 +109,15 @@
             display: block;
             width:  100%;
             background-color: #acc;
-            padding:  20px;
+            padding:  10px;
             box-sizing: border-box;
+            border-bottom: solid 1px #8aa;
         }
 
-        #header h1 {
+        #header h5 {
             float: left;
             clear: both;
+            margin-bottom: 0;
         }
 
         #header-details {
@@ -127,7 +129,7 @@
             background-color: black;
             background-image: url("{% static 'venue/img/twmpbs.jpg' %}");
             background-size: 100%;
-            background-position: 0 87px;
+            background-position: 0 40px;
             background-repeat: no-repeat;
             color:#eee;
         }
@@ -214,9 +216,11 @@
 
 {% if user.username %}
 <div id="header">
-<a href="/venues"><h1>Home</h1></a>
-<div id="header-details">{{user.profile.company.name}}<br>
-Logged in as {{user.first_name}} {{user.last_name}}</div>
+<a href="/venues"><h5>Home</h5></a>
+
+{% if user.username %}
+<div id="header-details">{{user.profile.company.name}} - {{user.first_name}} {{user.last_name}} | <a href="/logout">Logout</a></div>
+{% endif %}
 
 <div class="clear"></div>
 </div>

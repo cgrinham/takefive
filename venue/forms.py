@@ -1,6 +1,7 @@
 from django import forms
 from .models import Company, Venue, VenueLayout, Event, Guest, Member
 from .models import Membership, MembershipType, GuestList, AreaHireBooking
+from .models import VenueLayoutArea
 from django.utils.translation import gettext_lazy as _
 import datetime
 
@@ -21,6 +22,12 @@ class NewVenueLayoutForm(forms.ModelForm):
     class Meta:
         model = VenueLayout
         exclude = ['company', 'venue']
+
+
+class NewVenueLayoutAreaForm(forms.ModelForm):
+    class Meta:
+        model = VenueLayoutArea
+        exclude = ['company', 'venue', 'layout']
 
 
 class NewEventForm(forms.ModelForm):

@@ -3,7 +3,7 @@
 
 {% block content %}
 <h3>{{venue.name}}</h3>
-<a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/newevent">Create Event</a> | <a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/layout">Venue Layout</a> | <a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/members">Members</a><br><br>
+<a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/event/new/">Create Event</a> | <a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/layout">Venue Layout</a> | <a href="/venues/{{user.profile.company.reference}}/{{venue.reference}}/members">Members</a><br><br>
 
 <section>
     <h4>Metrics</h4>
@@ -14,8 +14,8 @@
             <th>Guest Attendance Rate</th>
         </tr>
         <tr>
-            <td>12,634</td>
-            <td>85%</td>
+            <td>{{arrived}}</td>
+            <td>{{attendance|floatformat}}%</td>
         </tr>
     </table>
 </section>

@@ -12,7 +12,7 @@ from .models import GuestList, Profile, Member, Membership, MembershipType
 from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm
 from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
 from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
-from .forms import NewRecurringEventForm
+from .forms import NewRecurringEventForm, NewVenueLayoutAreaForm
 
 # Tools
 
@@ -23,7 +23,7 @@ def countguests(guests):
     guestcount = 0
     for guest in guests:
         guestcount += guest.plusones
-    guestcount += len(guests)
+    guestcount += guests.count()
 
     return guestcount
 
@@ -68,6 +68,14 @@ def venue(request, company, venue):
     # venues = get_object_or_404(Company, reference=company)
     venue = Venue.objects.get(reference=venue)
     events = Event.objects.filter(venue=venue).order_by('-datestart')
+    guests = Guest.objects.filter(venue=venue)
+    arrivedguests = guests.filter(arrived=True)
+    print(guests.count())
+
+    guestcount = countguests(guests)
+    arrivedguestcount = countguests(arrivedguests)
+
+    attendance = float(arrivedguestcount) / guestcount * 100
 
     pastevents = []
     futureevents = []
@@ -82,7 +90,9 @@ def venue(request, company, venue):
                'venue': venue,
                'company': company,
                'pastevents': pastevents,
-               'futureevents': futureevents
+               'futureevents': futureevents,
+               'arrived': arrivedguestcount,
+               'attendance': attendance,
                }
 
     return render(request, 'venue/venue.html', context)
@@ -166,19 +176,19 @@ def venuelayout(request, company, venue):
         venuelayoutarea = VenueLayoutArea.objects.filter(layout=venuelayout)
         venuelayoutdict[venuelayout.name] = [venuelayout, venuelayoutarea]
 
-    print(venuelayoutdict)
-
     context = {'company': company,
                'venue': venue,
-               'venuelayoutdict': venuelayoutdict
+               'venuelayoutdict': venuelayoutdict,
                }
 
     return render(request, 'venue/venuelayout.html', context)
 
+
 @login_required
 def deletelayout(request):
     try:
-        venuelayout = VenueLayout.objects.get(pk=request.GET.get("venuelayout", None))
+        venuelayout = VenueLayout.objects.get(pk=request.GET.get("venuelayout",
+                                                         None))
         VenueLayoutArea.objects.filter(layout=venuelayout).delete()
         venuelayout.delete()
         data = {
@@ -219,6 +229,39 @@ def newvenuelayout(request, company, venue):
                }
 
     return render(request, 'venue/newvenuelayout.html', context)
+
+
+@login_required
+def newvenuelayoutarea(request, company, venue, layout):
+    company = Company.objects.get(reference=company)
+    venue = Venue.objects.get(reference=venue)
+
+    if request.method == 'POST':
+        # Creat a form instance and populate it with data from teh request
+        form = NewVenueLayoutAreaForm(data=request.POST)
+
+        if form.is_valid():
+            # Create the company object but don't actually save it
+            # So that we can add the reference
+            form = form.save(commit=False)
+            form.company = company
+            form.venue = venue
+            form.layout = VenueLayout.objects.get(pk=layout)
+            form.save()
+
+            return HttpResponseRedirect('/venues/%s/%s/layout' %
+                                        (company.reference, venue.reference))
+    else:
+        form = NewVenueLayoutAreaForm()
+
+    context = {
+               'company': company,
+               'venue': venue,
+                'form': form,
+                'layout': layout,
+               }
+
+    return render(request, 'venue/newvenuelayoutarea.html', context)
 
 
 @login_required
@@ -484,12 +527,13 @@ def newmembershiptype(request, company, venue):
             newevent.venue = venue
             newevent.save()
 
-            return HttpResponseRedirect('/venues/%s/%s' %
+            return HttpResponseRedirect('/venues/%s/%s/members/' %
                                         (company.reference, venue.reference))
     else:
         form = NewMembershipType()
 
     context = {
+               'company': company,
                'venue': venue,
                'form': form
                }
