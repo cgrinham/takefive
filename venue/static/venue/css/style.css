@@ -178,6 +178,11 @@ section {
     cursor: pointer;
 }
 
+.description {
+    border-top:  1px solid #ccc;
+    padding-top: 10px;
+}
+
 /* New Event */
 #formselector {
     width: 100%;
@@ -242,7 +247,7 @@ textarea {
     vertical-align: middle;
 }
 
-.delete {
+.delete, .deleteall {
     font-weight: lighter;
     position: absolute;
     right: 10px;
@@ -266,7 +271,7 @@ textarea {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -150%);
     text-align: center;
     background-color: #eee;
     padding: 30px;
@@ -341,6 +346,7 @@ label {
 .formtable label {
     margin: 0;
     font-size: 1em;
+    line-height: 1.2em;
 }
 
 input[type=text], input[type=email], input[type=number] {

@@ -5,10 +5,11 @@
 {% block content %}
 
 <a href="/venues/{{company.reference}}/{{venue.reference}}"><h3>{{venue}}</h3></a>
-<section>
+<section data-event="{{event.pk}}">
+<div class="delete">cancel event</div>
 <h4>{{event.name}}</h4>
-<p>{{event.datestart}} at {{event.timestart}} until {{event.dateend}} at {{event.timeend}}</p><br>
-<p>{{event.description}}</p>
+<p>{{event.datestart}} at {{event.timestart|date:'g:iA'|lower}} until {{event.dateend}} at {{event.timeend|date:'g:iA'|lower}}</p><br>
+<p class="description">{{event.description}}</p>
 </section>
 <section>
 Guestlists:
@@ -39,6 +40,16 @@ Guestlists:
 
 <a href="/venues/newguestlist/{{event.pk}}">New Guest List</a>
 </section>
+
+<!-- confirmation dialog -->
+<div id="confirmation" style="display:none">
+    <div class="messagebox">
+        <div class="cancel">x</div>
+        <p>Are you sure you'd like to <span class="action"></span>?</p>
+
+        <button class="yes" data-action="" data-value="">Yes</button><button class="no">No</button>
+    </div>
+</div>
 <script>
     jQuery(document).ready(function() {
         jQuery(function( $ ) {
@@ -65,7 +76,43 @@ Guestlists:
               $(this).children().toggleClass('red');
               $(this).children().toggleClass('green');
             });
-        });
+
+            $('#confirmation .cancel, #confirmation .no').on("click", function(){
+                $('#confirmation').hide();
+            });
+
+            $('#confirmation .yes').on("click", function(){
+              var current = $(this);
+                if (current.attr('data-action') == "eventdelete") {
+                  eventdelete(current.attr('data-value'));
+                  $('#confirmation').hide();
+                }
+            });
+
+            $(".delete").on("click", function () {
+
+                var current = $(this).parent();
+                var event = current.attr("data-event")
+
+                $('#confirmation .action').text('cancel this event')
+                $('#confirmation').show();
+                $('#confirmation .yes').attr('data-action', 'eventdelete');
+                $('#confirmation .yes').attr('data-value', event);
+            });
     });
+    });
+
+function eventdelete(event) {
+  $.ajax({
+          url: '/venues/ajax/eventdelete/',
+          data: {
+            'event': event
+          },
+          dataType: 'json',
+          success: function () {
+            window.location.href = "/venues/{{company.reference}}/{{venue.reference}}/";
+          }
+  });
+};
 </script>
 {% endblock %}

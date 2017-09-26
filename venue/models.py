@@ -119,7 +119,7 @@ class RecurringEvent(models.Model):
         return "%s - %s - %s" % (self.venue.name, self.firstevent, self.name)
 
 
-class RecurringEventDates(models.Model):
+class RecurringEventDate(models.Model):
     company = models.ForeignKey(Company)
     venue = models.ForeignKey(Venue)
     event = models.ForeignKey(RecurringEvent)
@@ -127,6 +127,9 @@ class RecurringEventDates(models.Model):
     timestart = models.TimeField("Event Start Time")
     dateend = models.DateField("Event End Date")
     timeend = models.TimeField("Event End Time")
+
+    def __unicode__(self):
+        return self.event.name
 
 
 # Holds title of guest lists for all events
@@ -137,7 +140,9 @@ class GuestList(models.Model):
     name = models.CharField("Guest List Title", max_length=100)
     maxguests = models.PositiveIntegerField("Maximum number of guests",
                                             default=50)
-    maxplusones = models.PositiveIntegerField("Maximum plus ones a guest can bring", default=1)
+    maxplusones = models.PositiveIntegerField(
+                "Maximum plus ones a guest can bring",
+                default=1)
     listopen = models.BooleanField("List Open?", default=True)
 
     def __unicode__(self):

@@ -1,8 +1,14 @@
 TODO
 
+Check all actions can only be performed by the owners of that company
+
 Better new event form
 - Name guestlist
 - Split into sections and beautify
+
+
+Event
+- Show area bookings
 
 Convert recurring event into normal event
 
