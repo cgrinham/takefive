@@ -1,7 +1,6 @@
 TODO
 
-Bettter new event form
-- First choose one-off or recurring event
+Better new event form
 - Name guestlist
 - Split into sections and beautify
 

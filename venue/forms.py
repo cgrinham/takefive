@@ -1,7 +1,7 @@
 from django import forms
 from .models import Company, Venue, VenueLayout, Event, Guest, Member
 from .models import Membership, MembershipType, GuestList, AreaHireBooking
-from .models import VenueLayoutArea
+from .models import VenueLayoutArea, RecurringEvent
 from django.utils.translation import gettext_lazy as _
 import datetime
 
@@ -67,13 +67,51 @@ class NewEventForm(forms.ModelForm):
         self.fields['timeend'].widget = forms.TextInput(attrs={
             'class': 'timepicker'})
 
-class NewRecurringEventForm(forms.Form):
-    eventname = forms.CharField(label="What is your event called?", max_length=254)
-    description = forms.CharField(widget=forms.Textarea, label="Give your event a description so people know what's going on")
-    datestart = forms.DateField(initial=datetime.date.today)
-    dateend = forms.DateField(initial=datetime.date.today)
-    timestart = forms.DateField()
-    timeend = forms.DateField()
+
+class NewRecurringEventForm(forms.ModelForm):
+    class Meta:
+        model = RecurringEvent
+        exclude = ['company', 'venue', 'recurrence']
+        labels = {
+            'name': 'What is your event called?',
+            'description': '',
+            'datestart': 'When will the first event be?',
+            'timestart': 'What time will your events start?',
+            'dateend': 'When will the last event be?',
+            'timeend': 'What time will they finish?',
+            'monday': 'mon',
+            'tuesday': 'tue',
+            'wednesday': 'wed',
+            'thursday': 'thu',
+            'friday': 'fri',
+            'saturday': 'sat',
+            'sunday': 'sun',
+        }
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('label_suffix', '')  # globally override the Django >=1.6 default of ':'
+        super(NewRecurringEventForm, self).__init__(*args, **kwargs)
+        self.fields['firstevent'].widget = forms.TextInput(attrs={
+            'class': 'datepicker'})
+        self.fields['lastevent'].widget = forms.TextInput(attrs={
+            'class': 'datepicker'})
+        self.fields['timestart'].widget = forms.TextInput(attrs={
+            'class': 'timepicker'})
+        self.fields['timeend'].widget = forms.TextInput(attrs={
+            'class': 'timepicker'})
+
+
+    def clean(self):
+        # Clean data
+        cleaned_data = super(NewRecurringEventForm, self).clean()
+
+        # Check event doesn't end before it starts
+        firstevent = self.cleaned_data.get("firstevent")
+        lastevent = self.cleaned_data.get("lastevent")
+        if lastevent < firstevent:
+            msg = u"Event can't end before it has started! Please change End Date."
+            self._errors["lastevent"] = self.error_class([msg])
+
 
 
 class NewGuestListForm(forms.ModelForm):
@@ -156,30 +194,3 @@ class NewMemberForm(forms.Form):
                              max_length=254)  # Member
     dateofbirth = forms.DateField(label="What is your date of birth?", widget=forms.DateInput(attrs={'class': 'datepicker'}))  # Member
     paid = forms.BooleanField()
-
-
-"""
-class JoinGuestListForm(forms.Form):
-    guestlist = forms.ModelMultipleChoiceField(queryset=Event.objects.all())
-    firstname = forms.CharField(label='First Name', max_length=50)
-    lastname = forms.CharField(label='Last Name', max_length=50)
-    email = forms.EmailField(max_length=254)
-    member = forms.BooleanField(required=False)
-    timeslot = forms.CharField(label='When would you like to attend?', max_length=50)
-    plusones = forms.IntegerField()
-    notes = forms.CharField(label='Any additional notes?', max_length=140)
-"""
-
-
-
-"""
-class NewEventForm(forms.Form):
-    venue = forms.ModelChoiceField(queryset=Venue.objects.all().order_by('name'))
-    name = forms.CharField(label='Event Name', max_length=120)
-    description = forms.CharField(widget=forms.Textarea, label='Provide a short description of the event')
-    datestart = forms.DateField(widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    timestart = forms.TimeField(widget=forms.TimeInput)
-    dateend = forms.DateField(widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    timeend = forms.TimeField(widget=forms.TimeInput)
-    createguestlist = forms.BooleanField(label="Create a guestlist?")
-"""

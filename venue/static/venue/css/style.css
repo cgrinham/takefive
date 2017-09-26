@@ -191,13 +191,9 @@ section {
 #oneoff, #recurring {
     width: 50%;
     box-sizing: border-box;
-    border-width: 1px;
-    border-color: #666;
-    border-style: solid;
     padding: 30px;
-    background-color: #acc;
     cursor: pointer;
-    transition: width 0.2s, background-color 0.1s;
+    transition: width 0.2s;
     display: inline-block;
     position: relative;
 }
@@ -213,10 +209,6 @@ section {
     right: 0;
 }
 
-#oneoff:hover, #recurring:hover {
-    background-color: #bdd;
-}
-
 .cancel {
     position: absolute;
     right: 10px;
@@ -224,6 +216,11 @@ section {
     font-weight: bolder;
     cursor: pointer;
 }
+
+textarea {
+    width: 100%;
+}
+
 
 /* END NEW EVENT */
 
@@ -341,6 +338,11 @@ label {
     margin: 80px 0 5px;
 }
 
+.formtable label {
+    margin: 0;
+    font-size: 1em;
+}
+
 input[type=text], input[type=email], input[type=number] {
     display: block;
     margin: 0 auto;
@@ -350,7 +352,6 @@ input[type=text], input[type=email], input[type=number] {
     border-width: 0 0 1px 0;
     background-color: transparent;
     border-color: #999;
-    color: #eee;
     font-weight:100;
 }
 

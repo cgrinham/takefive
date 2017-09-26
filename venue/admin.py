@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event
 from .models import GuestList, Guest, Profile, Member, Membership, MembershipType
+from .models import RecurringEvent
 # Register your models here.
 
 
@@ -31,6 +32,8 @@ class EventAdmin(admin.ModelAdmin):
                                  'dateend', 'timeend']}),
     ]
 
+class RecurringEventAdmin(admin.ModelAdmin):
+    fields = ['company', 'venue', 'name', 'description', 'firstevent', 'lastevent', 'timestart', 'timeend', 'recurrence', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', ]
 
 class MemberAdmin(admin.ModelAdmin):
     fields = ['firstname', 'lastname', 'email', 'dateofbirth', 'appearances']
@@ -58,6 +61,7 @@ admin.site.register(Venue, VenueAdmin)
 admin.site.register(VenueLayout, VenueLayoutAdmin)
 admin.site.register(VenueLayoutArea, VenueLayoutAreaAdmin)
 admin.site.register(Event, EventAdmin)
+admin.site.register(RecurringEvent, RecurringEventAdmin)
 admin.site.register(GuestList, GuestListAdmin)
 admin.site.register(Guest, GuestAdmin)
 admin.site.register(Profile, ProfileAdmin)

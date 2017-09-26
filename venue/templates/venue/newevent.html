@@ -8,7 +8,7 @@
         <div class="cancel" style="display:none">X</div>
         <h2>One-off event</h2>
         <div class="form" style="display:none;">
-            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/event/newoneoff" method="post">
+            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/event/newoneoff/" method="post">
               {% csrf_token %}
               <table class="formtable">
                   <tr>
@@ -16,23 +16,23 @@
                       <th>Input</th>
                   </tr>
                   <tr>
-                      <td>{{ oneoffform.name.label_tag }}</td>
+                      <td><label for="">{{ oneoffform.name.label_tag }}</label></td>
                       <td>{{ oneoffform.name }}</td>
                   </tr>
                   <tr>
-                      <td>Wite a bit about your event so people know what's going on.</td>
+                      <td><label>Wite a bit about your event so people know what's going on.</label></td>
                       <td>{{ oneoffform.description }}</td>
                   </tr>
                   <tr>
-                      <td>What time does your event start?</td>
-                      <td>{{oneoffform.datestart}}{{oneoffform.timestart}}</td>
+                      <td><label>What time does your event start?</label></td>
+                      <td>{{oneoffform.datestart}}   {{oneoffform.timestart}}</td>
                   </tr>
                   <tr>
-                      <td>What time does your event end?</td>
+                      <td><label>What time does your event end?</label></td>
                       <td>{{oneoffform.dateend}}{{oneoffform.timeend}}</td>
                   </tr>
                   <tr>
-                      <td>Create default guestlist?</td>
+                      <td><label>Create default guestlist?</label></td>
                       <td>{{oneoffform.createguestlist}}</td>
                   </tr>
               </table>
@@ -44,10 +44,62 @@
     --><div id="recurring">
         <div class="cancel" style="display:none">X</div>
         <h2>Recurring event</h2>
-        <div class="form" style="display:none;">
-            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/event/newrecurring" method="post">
+        <div class="form" style="display:none">
+            <form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/event/newrecurring/" method="post">
               {% csrf_token %}
-              {{ recurringform }}
+              <table class="formtable">
+                  <tr>
+                      <th>Label</th>
+                      <th>Input</th>
+                  </tr>
+                  <tr>
+                      <td><label for="">{{ recurringform.name.label_tag }}</label></td>
+                      <td>{{ recurringform.name }}</td>
+                  </tr>
+                  <tr>
+                      <td><label>Wite a bit about your event so people know what's going on.</label></td>
+                      <td>{{ recurringform.description }}</td>
+                  </tr>
+                  <tr>
+                      <td><label>When is your first event?</label></td>
+                      <td>{{recurringform.firstevent}}   </td>
+                  </tr>
+                  <tr>
+                      <td><label>And the last?</label></td>
+                      <td>{{recurringform.lastevent}}</td>
+                  </tr>
+                  <tr>
+                      <td><label>When will your events start and end?</label></td>
+                      <td>{{recurringform.timeend}}{{recurringform.timestart}}</td>
+                  </tr>
+                  <tr>
+                      <td><label>Which days does this event occur on?</label></td>
+                      <td>
+                        <table>
+                          <tr>
+                              <td>{{recurringform.monday.label_tag}}</td>
+                              <td>{{recurringform.tuesday.label_tag}}</td>
+                              <td>{{recurringform.wednesday.label_tag}}</td>
+                              <td>{{recurringform.thursday.label_tag}}</td>
+                              <td>{{recurringform.friday.label_tag}}</td>
+                              <td>{{recurringform.saturday.label_tag}}</td>
+                              <td>{{recurringform.sunday.label_tag}}</td>
+                          </tr>
+                          <tr>
+                              <td>{{recurringform.monday}} </td>
+                              <td>{{recurringform.tuesday}}</td>
+                              <td>{{recurringform.wednesday}}</td>
+                              <td>{{recurringform.thursday}}</td>
+                              <td>{{recurringform.friday}}</td>
+                              <td>{{recurringform.saturday}}</td>
+                              <td>{{recurringform.sunday}} </td>
+                          </tr>
+                        </table>
+
+                        
+                      </td>
+                  </tr>
+              </table>
               <input type="submit" value="Submit">
                 
             </form>
@@ -79,7 +131,6 @@
         var current = $(this).parent();
         $('#oneoff').hide();
         $(current).css('width', '100%');
-        $(current).css('cursor', 'default');
         $('#recurring .form').show();
         $(current).children('.cancel').css('display', 'block');
     });

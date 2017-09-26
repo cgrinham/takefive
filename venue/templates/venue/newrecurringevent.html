@@ -5,7 +5,14 @@
 
 <h2>New Event</h2>
 
-<div id="formselector">
+<section>
+{% if form %}
+<form action="/venues/{{company.reference}}/{{venue.reference}}/event/newrecurring/" method="post">
+{% csrf_token %}
+{{form}}
+<input type="submit" value="Submit">
+</form>
+{% endif %}
 {% if error %}
 <h2>Sorry, something went wrong...</h2>
 <h3>{{error}}</h3>
@@ -13,6 +20,6 @@
 {% else %}
 <h2>Thanks, your new event has been created</h2>
 {% endif %}
-</div>
+</section>
 
 {% endblock %}

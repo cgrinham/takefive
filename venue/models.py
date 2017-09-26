@@ -102,10 +102,11 @@ class RecurringEvent(models.Model):
     venue = models.ForeignKey(Venue)
     name = models.CharField("Event Name", max_length=120)
     description = models.TextField("Description")
-    datestart = models.DateField("Event Start Date")
+    firstevent = models.DateField("First Event Date")
+    lastevent = models.DateField("Last Event Date")
     timestart = models.TimeField("Event Start Time")
-    dateend = models.DateField("Event End Date")
     timeend = models.TimeField("Event End Time")
+    recurrence = models.CharField("Weekly or Monthly", max_length=7)
     monday = models.BooleanField("Recurs on Mondays")
     tuesday = models.BooleanField("Recurs on Tuesdays")
     wednesday = models.BooleanField("Recurs on Wednesdays")
@@ -115,7 +116,7 @@ class RecurringEvent(models.Model):
     sunday = models.BooleanField("Recurs on Sundays")
 
     def __unicode__(self):
-        return "%s - %s - %s" % (self.venue.name, self.datestart, self.name)
+        return "%s - %s - %s" % (self.venue.name, self.firstevent, self.name)
 
 
 class RecurringEventDates(models.Model):

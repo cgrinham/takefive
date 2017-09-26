@@ -485,6 +485,47 @@ def newoneoffevent(request, company, venue):
 
     return render(request, 'venue/newoneoffevent.html', context)
 
+
+@login_required
+def newrecurringevent(request, company, venue):
+    company = Company.objects.get(reference=request.user.profile.company.reference)
+    venue = Venue.objects.get(reference=venue)
+    error = False
+    if request.method == 'POST':
+        # Creat a form instance and populate it with data from teh request
+        form = NewRecurringEventForm(data=request.POST)
+
+        if form.is_valid():
+            print("That form's valid")
+            newevent = form.save(commit=False)
+            newevent.company = company
+            newevent.venue = venue
+            newevent.recurrence = "weekly"
+            
+            newevent.save()
+
+            # Create guestlists for all events
+            # print("Let's make a guestlist!")
+            # newguestlist = GuestList(company=company, venue=venue,
+            #                          event=newevent,
+            #                          name="%s Guestlist" %
+            #                               form.cleaned_data["name"],
+            #                          maxguests=newevent.venue.capacity)
+            # newguestlist.save()
+            return HttpResponseRedirect('/venues/%s/%s' %
+                                        (company.reference, venue.reference))
+    else:
+        form = NewRecurringEventForm()
+
+    context = {
+               'venue': venue,
+               'company': company,
+               'form': form,
+               'error': error,
+               }
+
+    return render(request, 'venue/newrecurringevent.html', context)
+
 @login_required
 def newguestlist(request, event):
 
