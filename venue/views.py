@@ -14,7 +14,7 @@ from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm
 from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
 from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
 from .forms import NewRecurringEventForm, NewVenueLayoutAreaForm
-from .forms import JoinRecurringGuestListForm
+from .forms import JoinRecurringGuestListForm, SignUpForm
 
 # Tools
 
@@ -66,9 +66,27 @@ def sort_dates(events):
 
 # Views
 
+def signup(request):
+    form = SignUpForm()
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'venue/signup.html', context)
+
+
 
 def index(request):
-    company = Company.objects.get(pk=1)
+    if request.user.is_authenticated():
+        print("Is is_authenticated")
+        try:
+            company = Company.objects.get(
+                reference=request.user.profile.company.reference)
+        except:
+            return HttpResponseRedirect('/venues/newcompany/')
+    else:
+        return HttpResponseRedirect('/signup')
+
     venues = Venue.objects.filter(owner=company)
 
     context = {

@@ -17,7 +17,7 @@ class Company(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company)
+    company = models.ForeignKey(Company, blank=True, null=True)
 
     def __unicode__(self):
         return self.user.username
