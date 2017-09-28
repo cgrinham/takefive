@@ -18,6 +18,15 @@
             <td>{{attendance|floatformat}}%</td>
         </tr>
     </table>
+    <table class="metrics">
+        <tr>
+            <th>Members</th>
+            <th>Member visits</th>
+        </tr>
+        <tr>
+            <td>{{membercount}}</td>
+        </tr>
+    </table>
 </section>
 
 
@@ -32,7 +41,7 @@
     </tr>
     {% for event in futureevents %}
     <tr>
-        <td>{{event.datestart| date:'d/m/Y'}} - {{event.timestart}}</td>
+        <td>{{event.datestart| date:'d/m/Y'}} - {{event.timestart|date:'g:iA'|lower}}</td>
         <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{event.pk}}">{{event.name}}</a></td>
     </tr>
     {% endfor %}
@@ -51,13 +60,15 @@ No upcoming events
 <h4>Recurring Events:</h4>
     <table class="events">
         <tr>
+            <th>Start Date</th>
             <th>Event Name</th>
             <th>Next Event</th>
         </tr>
         {% for event in recurringevents %}
         <tr>
-            <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{event.pk}}">{{event.name}}</a></td>
-            <td>{{event.datestart| date:'d/m/Y'}} {{event.timestart}}</td>
+            <td>{{event.firstevent| date:'d/m/Y'}}</td>
+            <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/recurring/{{event.pk}}">{{event.name}}</a></td>
+            <td></td>
         </tr>
         {% endfor %}
     </table>

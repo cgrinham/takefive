@@ -5,7 +5,7 @@
 
 <h2>New Venue</h2>
 
-<form action="/venues/newvenue" method="post">
+<form action="/venues/{{company.reference}}/newvenue/" method="post">
  {% csrf_token %}
  {{ form }}
  <input type="submit" value="Submit">

@@ -67,7 +67,7 @@ class VenueLayoutArea(models.Model):
 
     def __unicode__(self):
         return "%s %s" (self.venue.name, self.name)
- 
+
 
 class AreaHireBooking(models.Model):
     company = models.ForeignKey(Company)
@@ -76,7 +76,10 @@ class AreaHireBooking(models.Model):
     firstname = models.CharField("First Name", max_length=50)
     lastname = models.CharField("Last Name", max_length=50)
     email = models.EmailField("Email Address", max_length=254)
-    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$',
+                                 message="Phone number must be entered in the "
+                                         "format: '+999999999'. Up to 15 "
+                                         "digits allowed.")
     phone = models.CharField(validators=[phone_regex], blank=True,
                              max_length=18)  # validators should be a list
 
@@ -96,6 +99,7 @@ class Event(models.Model):
 
     def __unicode__(self):
         return "%s - %s - %s" % (self.venue.name, self.datestart, self.name)
+
 
 class RecurringEvent(models.Model):
     company = models.ForeignKey(Company)
@@ -119,7 +123,7 @@ class RecurringEvent(models.Model):
         return "%s - %s - %s" % (self.venue.name, self.firstevent, self.name)
 
 
-class RecurringEventDates(models.Model):
+class RecurringEventDate(models.Model):
     company = models.ForeignKey(Company)
     venue = models.ForeignKey(Venue)
     event = models.ForeignKey(RecurringEvent)
@@ -128,21 +132,32 @@ class RecurringEventDates(models.Model):
     dateend = models.DateField("Event End Date")
     timeend = models.TimeField("Event End Time")
 
+    def __unicode__(self):
+        return self.event.name
+
 
 # Holds title of guest lists for all events
 class GuestList(models.Model):
     company = models.ForeignKey(Company)
     venue = models.ForeignKey(Venue)
-    event = models.ForeignKey(Event)
+    event = models.ForeignKey(Event, blank=True, null=True)
+    recurringevent = models.ForeignKey(RecurringEventDate,
+                                       blank=True,
+                                       null=True)
     name = models.CharField("Guest List Title", max_length=100)
     maxguests = models.PositiveIntegerField("Maximum number of guests",
                                             default=50)
-    maxplusones = models.PositiveIntegerField("Maximum plus ones a guest can bring", default=1)
+    maxplusones = models.PositiveIntegerField(
+                "Maximum plus ones a guest can bring",
+                default=1)
     listopen = models.BooleanField("List Open?", default=True)
 
     def __unicode__(self):
-        return "%s - %s - %s" % (self.event.name, self.event.datestart,
-                                 self.name)
+        if self.event:
+            return "%s - %s - %s" % (self.event.name, self.event.datestart,
+                                     self.name)
+        else:
+            return self.name
 
 
 # Holds all guests for all guestlists

@@ -3,16 +3,18 @@ import re
 import datetime
 from django.http import JsonResponse
 from dateutil.relativedelta import relativedelta
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest
 from .models import GuestList, Profile, Member, Membership, MembershipType
+from .models import RecurringEvent, RecurringEventDate
 from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm
 from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
 from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
 from .forms import NewRecurringEventForm, NewVenueLayoutAreaForm
+from .forms import JoinRecurringGuestListForm
 
 # Tools
 
@@ -27,6 +29,40 @@ def countguests(guests):
     guestcount += guests.count()
 
     return guestcount
+
+
+def geteventdays(recurringevent):
+    """ Get dates for recurring days """
+    dayslist = [
+        (recurringevent.monday, 'Monday'),
+        (recurringevent.tuesday, 'Tuesday'),
+        (recurringevent.wednesday, 'Wednesday'),
+        (recurringevent.thursday, 'Thursday'),
+        (recurringevent.friday, 'Friday'),
+        (recurringevent.saturday, 'Saturday'),
+        (recurringevent.sunday, 'Sunday'),
+        ]
+
+    days = []
+    for day in dayslist:
+        if day[0] is True:
+            days.append(day[1])
+
+    return days
+
+
+def sortdates(events):
+    """ Sort events into past and future """
+    pastevents = []
+    futureevents = []
+
+    for event in events:
+        if event.dateend < datetime.datetime.now().date():
+            pastevents.append(event)
+        else:
+            futureevents.append(event)
+
+    return futureevents, pastevents
 
 
 # Views
@@ -102,15 +138,27 @@ def venue(request, company, venue):
     # venues = get_object_or_404(Company, reference=company)
     venue = Venue.objects.get(reference=venue)
     events = Event.objects.filter(venue=venue).order_by('-datestart')
+
+    # Guest metrics
     guests = Guest.objects.filter(venue=venue)
     arrivedguests = guests.filter(arrived=True)
-    print(guests.count())
 
     guestcount = countguests(guests)
     arrivedguestcount = countguests(arrivedguests)
 
-    attendance = float(arrivedguestcount) / guestcount * 100
+    # Avoid divide by zero
+    if guestcount != 0:
+        attendance = float(arrivedguestcount) / guestcount * 100
+    else:
+        attendance = 0
 
+    # Count members
+    membershiptypes = MembershipType.objects.filter(venue=venue)
+    members = []
+    for membershiptype in membershiptypes:
+        members += Membership.objects.filter(membershiptype=membershiptype)
+
+    # Sort events into past and future
     pastevents = []
     futureevents = []
 
@@ -120,13 +168,18 @@ def venue(request, company, venue):
         else:
             futureevents.append(event)
 
+    recurringevents = RecurringEvent.objects.filter(company=company,
+                                                    venue=venue)
+
     context = {
                'venue': venue,
                'company': company,
                'pastevents': pastevents,
+               'recurringevents': recurringevents,
                'futureevents': futureevents,
                'arrived': arrivedguestcount,
                'attendance': attendance,
+               'membercount': len(members)
                }
 
     return render(request, 'venue/venue.html', context)
@@ -134,6 +187,8 @@ def venue(request, company, venue):
 
 @login_required
 def newvenue(request, company):
+    # companyname = get_object_or_404(Company, reference=company)
+    company = Company.objects.get(reference=company)
 
     if request.method == 'POST':
         # Creat a form instance and populate it with data from the request
@@ -151,7 +206,9 @@ def newvenue(request, company):
     else:
         form = NewVenueForm()
 
-    context = {'form': form
+    context = {
+               'company': company,
+               'form': form,
                }
 
     return render(request, 'venue/newvenue.html', context)
@@ -282,9 +339,10 @@ def members(request, company, venue):
     venue = Venue.objects.get(reference=venue)
 
     membershiptypes = MembershipType.objects.filter(venue=venue)
+    members = []
 
     for membershiptype in membershiptypes:
-        members = Membership.objects.filter(membershiptype=membershiptype)
+        members += Membership.objects.filter(membershiptype=membershiptype)
 
     context = {
                'venue': venue,
@@ -296,10 +354,12 @@ def members(request, company, venue):
     return render(request, 'venue/members.html', context)
 
 
+@login_required
 def newmembershiptype(request, company, venue):
     # Check if company owns a venue with this reference
     # Check user is allowed to create events for this venue
-    company = Company.objects.get(reference=request.user.profile.company.reference)
+    company = Company.objects.get(
+              reference=request.user.profile.company.reference)
     venue = Venue.objects.get(reference=venue)
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
@@ -377,7 +437,7 @@ def newmember(request, membershiptype):
 def viewevent(request, company, venue, event):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
-    event = Event.objects.get(pk=event)
+    event = get_object_or_404(Event, pk=event)
     print(event)
 
     guestlists = GuestList.objects.filter(event=event)
@@ -395,10 +455,92 @@ def viewevent(request, company, venue, event):
 
 
 @login_required
+def ajaxeventdelete(request):
+    event = Event.objects.get(pk=request.GET.get("event", None))
+    event.delete()
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
+
+@login_required
+def viewrecurringevent(request, company, venue, event):
+    company = Company.objects.get(reference=company)
+    venue = Venue.objects.get(reference=venue)
+    event = RecurringEvent.objects.get(pk=event)
+    dates = RecurringEventDate.objects.filter(event=event)
+
+    # guestlists = GuestList.objects.filter(event=event)
+
+    # print(guestlists)
+
+    daylist = geteventdays(event)
+    days = ""
+    count = 0
+
+    for day in daylist:
+        if count < (len(daylist) - 1):
+            days += "%s, " % day
+        else:
+            days += day
+        count += 1
+
+    # Sort dates into past and future
+    pastdates = []
+    futuredates = []
+
+    for date in dates:
+        if date.dateend < datetime.datetime.now().date():
+            pastdates.append(date)
+        else:
+            futuredates.append(date)
+
+    context = {
+               'company': company,
+               'venue': venue,
+               # 'guestlists': guestlists,
+               'event': event,
+               'futuredates': futuredates,
+               'pastdates': pastdates,
+               'days': days,
+               }
+
+    return render(request, 'venue/viewrecurringevent.html', context)
+
+
+@login_required
+def ajaxrecceventdeleteall(request):
+    event = RecurringEvent.objects.get(pk=request.GET.get("event", None))
+    dates = RecurringEventDate.objects.filter(event=event)
+    dates.delete()
+
+    event.delete()
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
+
+@login_required
+def ajaxrecceventdeletedate(request):
+    event = RecurringEventDate.objects.get(pk=request.GET.get("event", None))
+    guestlist = GuestList.objects.get(recurringevent=event)
+
+    event.delete()
+    guestlist.delete()
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
+
+@login_required
 def newevent(request, company, venue):
     # Check if company owns a venue with this reference
     # Check user is allowed to create events for this venue
-    company = Company.objects.get(reference=request.user.profile.company.reference)
+    company = Company.objects.get(
+            reference=request.user.profile.company.reference)
     venue = Venue.objects.get(reference=venue)
 
     oneoffform = NewEventForm()
@@ -418,7 +560,8 @@ def newevent(request, company, venue):
 def newoneoffevent(request, company, venue):
     # Check if company owns a venue with this reference
     # Check user is allowed to create events for this venue
-    company = Company.objects.get(reference=request.user.profile.company.reference)
+    company = Company.objects.get(
+            reference=request.user.profile.company.reference)
     venue = Venue.objects.get(reference=venue)
     error = False
     if request.method == 'POST':
@@ -456,7 +599,8 @@ def newoneoffevent(request, company, venue):
 
 @login_required
 def newrecurringevent(request, company, venue):
-    company = Company.objects.get(reference=request.user.profile.company.reference)
+    company = Company.objects.get(
+            reference=request.user.profile.company.reference)
     venue = Venue.objects.get(reference=venue)
     error = False
     if request.method == 'POST':
@@ -471,6 +615,42 @@ def newrecurringevent(request, company, venue):
             newevent.recurrence = "weekly"
 
             newevent.save()
+
+            # Create event dates
+            d1 = newevent.firstevent
+            d2 = newevent.lastevent
+            days = geteventdays(newevent)
+            delta = d2 - d1         # timedelta
+
+            for i in range(delta.days + 1):
+                thisdate = d1 + datetime.timedelta(days=i)
+                if thisdate.strftime('%A') in days:
+                    if thisdate.strftime('%d'):
+                        newdate = RecurringEventDate(
+                            company=company,
+                            venue=venue,
+                            event=newevent,
+                            datestart=thisdate,
+                            dateend=thisdate + datetime.timedelta(days=1),
+                            timestart=newevent.timestart,
+                            timeend=newevent.timeend,
+                            )
+                        newdate.save()
+
+                        guestlistname = "%s - %s" % (newevent.name,
+                                                     thisdate.strftime(
+                                                        '%d/%m/%Y'))
+
+                        newguestlist = GuestList(
+                            company=company,
+                            venue=venue,
+                            recurringevent=newdate,
+                            name=guestlistname,
+                            maxguests=venue.capacity,
+                            )
+                        newguestlist.save()
+                else:
+                    pass
 
             # Create guestlists for all events
             # print("Let's make a guestlist!")
@@ -532,7 +712,8 @@ def newguestlist(request, event):
 
         if form.is_valid():
             form = form.save(commit=False)
-            form.company = Company.objects.get(reference=request.user.profile.company.reference)
+            form.company = Company.objects.get(
+                reference=request.user.profile.company.reference)
             form.venue = eventobj.venue
             form.event = eventobj
             form.save()
@@ -600,6 +781,51 @@ def joinguestlist(request, guestlist):
                }
 
     return render(request, 'venue/joinguestlist.html', context)
+
+
+def join_recurring_guestlist(request, event):
+    event = RecurringEvent.objects.get(pk=event)
+    dates = RecurringEventDate.objects.filter(event=event)
+
+    futuredates, pastdates = sortdates(dates)
+
+    if request.method == 'POST':
+        # Creat a form instance and populate it with data from teh request
+        form = JoinRecurringGuestListForm(request.POST)
+
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.guestlist = event
+            form.company = event.company
+            form.venue = event.venue
+            form.save()
+
+            send_mail('Thankyou for joining the guest list',
+                      """Dear %s,\n Thankyou for joining the guest list for %s,\n
+                       We looking forward to seeing you.\n
+                       Piano Bar Soho Team""" % (form.firstname,
+                                                 event.event.name),
+                      'tf@christiegrinham.co.uk',
+                      [form.email],
+                      fail_silently=False,
+                      )
+
+            context = {
+                       'event': event,
+                       'thankyou': True
+                       }
+
+            return render(request, 'venue/joinguestlist.html', context)
+    else:
+        form = JoinRecurringGuestListForm()
+
+    context = {
+               'event': event,
+               'dates': futuredates,
+               'form': form,
+               }
+
+    return render(request, 'venue/joinrecurringguestlist.html', context)
 
 
 def toggleguestlistopen(request):

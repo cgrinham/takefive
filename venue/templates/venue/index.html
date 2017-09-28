@@ -7,15 +7,20 @@
 {% if user.is_authenticated %}
 
     <p>Hello {{user.username}} of {{user.profile.company.name}}</p>
+    <div class="venues">
     
-
-    {% for venue in venues %}
-    <a href="{{company.reference}}/{{venue.reference}}">{{venue.name}}</a><br>
-    {% endfor %}
-
-
+        {% for venue in venues %}
+        <a href="{{company.reference}}/{{venue.reference}}">
+            <div class="venue">
+                <img src="{% static 'venue/img/venueplaceholder.jpg' %}" alt="">
+                <div class="caption">{{venue.name}}</div>
+            </div>
+        </a>
+        {% endfor %}
+    
+    </div>
     <br><br><br>
-    <a href="{{user.profile.company.reference}}/newvenue">New venue</a><br>
+    <a href="{{user.profile.company.reference}}/newvenue/">New venue</a><br>
     <a href="/logout">Logout</a>
 {% else %}
     <a href="signup">Sign Up</a>

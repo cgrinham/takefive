@@ -1,0 +1,132 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+{% load guest_tools %}
+
+{% block content %}
+
+<a href="/venues/{{company.reference}}/{{venue.reference}}"><h3>{{venue}}</h3></a>
+<section data-event="{{event.pk}}">
+<div class="deleteall">cancel all events</div>
+<h4>{{event.name}}</h4>
+<p>{{event.firstevent| date:'d/m/Y'}} until {{event.lastevent| date:'d/m/Y'}}</p>
+<p>Every {{days}}</p>
+<p class="description">{{event.description}}</p>
+<a href="/glr/{{event.pk}}">Join Guest List Link</a>
+</section>
+<section>
+{% if futuredates %}
+<h4>Future Dates</h4>
+<table>
+    <tr>
+        <th>Date</th>
+        <th></th>
+    </tr>
+    {% for date in futuredates %}
+    <tr class="date-{{date.pk}}">
+        <td>{{date.datestart| date:'d/m/Y'}}</a></td>
+        <td><button class="confirm" data-event="{{date.pk}}" data-date="{{date.datestart| date:'d/m/Y'}}">cancel</button></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+There are curently no dates for this event
+{% endif %}
+</section>
+
+{% if pastdates %}
+<section>
+<h4>Past Dates</h4>
+<table>
+    <tr>
+        <th>Date</th>
+    </tr>
+    {% for date in pastdates %}
+    <tr>
+        <td>{{date.datestart| date:'d/m/Y'}}</a></td>
+    </tr>
+    {% endfor %}
+</table>
+</section>
+{% endif %}
+
+<!-- confirmation dialog -->
+<div id="confirmation" style="display:none">
+    <div class="messagebox">
+        <div class="cancel">x</div>
+        <p>Are you sure you'd like to <span class="action"></span>?</p>
+
+        <button class="yes" data-action="" data-value="">Yes</button><button class="no">No</button>
+    </div>
+</div>
+<script>
+    jQuery(document).ready(function() {
+        jQuery(function( $ ) {
+
+            $('#confirmation .cancel, #confirmation .no').on("click", function(){
+                $('#confirmation').hide();
+            });
+
+            $('#confirmation .yes').on("click", function(){
+              var current = $(this);
+                if (current.attr('data-action') == "deleteall") {
+                  recceventdeleteall(current.attr('data-value'));
+                  $('#confirmation').hide();
+                } else if (current.attr('data-action') == "deletedate") {
+                  recceventdeletedate(current.attr('data-value'));
+                  $('#confirmation').hide();
+                }
+            });
+
+
+
+            $(".deleteall").on("click", function () {
+
+                var current = $(this).parent();
+                var event = current.attr("data-event");
+
+                $('#confirmation .action').text('cancel all events in this series')
+                $('#confirmation').show();
+                $('#confirmation .yes').attr('data-action', 'deleteall');
+                $('#confirmation .yes').attr('data-value', event);
+            });
+
+            $(".confirm").on("click", function () {
+
+                var current = $(this);
+                var event = current.attr("data-event");
+
+                $('#confirmation .action').text('cancel this date (' + current.attr("data-date") + ")");
+                $('#confirmation').show();
+                $('#confirmation .yes').attr('data-action', 'deletedate');
+                $('#confirmation .yes').attr('data-value', event);
+            });
+        });
+    });
+
+function recceventdeleteall(event) {
+  $.ajax({
+          url: '/venues/ajax/recceventdeleteall/',
+          data: {
+            'event': event
+          },
+          dataType: 'json',
+          success: function () {
+            window.location.href = "/venues/{{company.reference}}/{{venue.reference}}/";
+          }
+  });
+};
+
+function recceventdeletedate(event) {
+  $.ajax({
+          url: '/venues/ajax/recceventdeletedate/',
+          data: {
+            'event': event
+          },
+          dataType: 'json',
+          success: function () {
+            $(".date-" + event).fadeOut();
+          }
+  });
+};
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "venue/public.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+
+{% if thankyou %}
+
+<section id="guestlist" class="message">
+<h2>{{guestlistobj.event.name}} - {{guestlistobj.name}}</h2>
+<h3>{{guestlistobj.event.datestart}}</h3>
+<h1>Thank you for joining the guest list for {{guestlistobj.event.name}}</h1>
+
+{% else %}
+    <section id="guestlist">
+    <h2>{{event.name}}</h2>
+    <form action="/venues/joinguestlist/{{event.pk}}" method="post">
+     {% csrf_token %}
+     <select name="choosedate" id="choosedate">
+        {% for date in dates %}
+         <option value="{{date.pk}}">{{date.datestart}}</option>
+        {% endfor %}
+     </select>
+     {{ form }}
+     <input type="submit" value="Submit">
+        
+    </form>
+{% endif %}
+</section>
+
+{% endblock %}

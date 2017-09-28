@@ -15,7 +15,7 @@ class NewCompanyForm(forms.ModelForm):
 class NewVenueForm(forms.ModelForm):
     class Meta:
         model = Venue
-        fields = ['name', 'capacity']
+        fields = ['name', 'capacity', 'defaultplusones']
 
 
 class NewVenueLayoutForm(forms.ModelForm):
@@ -178,6 +178,19 @@ class JoinGuestListForm(forms.ModelForm):
             msg = u"Sorry, the maximum number of additional guests allowed is %d" % guestlistobj.maxplusones
             self._errors["plusones"] = self.error_class([msg])
 
+class JoinRecurringGuestListForm(forms.ModelForm):
+    class Meta:
+        model = Guest
+        fields = ['firstname', 'lastname',
+                  'plusones', 'member', 'timeslot',  'email']
+        labels = {
+                  'firstname': _('What is your first name?'),
+                  'lastname': _('Thanks, and what is your last?'),
+                  'member': _('Are you a member?'),
+                  'plusones': _('How many guests are you bringing?'),
+                  'timeslot': _('What time can we be expecting you?'),
+                  'email': _('To complete your request, please enter your email address'),
+        }
 
 class NewMembershipType(forms.ModelForm):
     class Meta:
