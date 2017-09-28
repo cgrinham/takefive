@@ -25,6 +25,13 @@
     <tr class="date-{{date.pk}}">
         <td>{{date.datestart| date:'d/m/Y'}}</a></td>
         <td><button class="confirm" data-event="{{date.pk}}" data-date="{{date.datestart| date:'d/m/Y'}}">cancel</button></td>
+
+        <th>Guestlist</th>
+    </tr>
+    {% for date in futuredates %}
+    <tr>
+        <td>{{date.datestart| date:'d/m/Y'}}</a></td>
+        <td><a href="">Guestlist for {{date.datestart| date:'d/m/Y'}}</a></td>
     </tr>
     {% endfor %}
 </table>
@@ -76,8 +83,6 @@ There are curently no dates for this event
                   $('#confirmation').hide();
                 }
             });
-
-
 
             $(".deleteall").on("click", function () {
 

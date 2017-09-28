@@ -64,7 +64,6 @@ def sortdates(events):
 
     return futureevents, pastevents
 
-
 # Views
 
 
