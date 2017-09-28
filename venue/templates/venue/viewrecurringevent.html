@@ -19,19 +19,14 @@
 <table>
     <tr>
         <th>Date</th>
+        <th>Guestlist</th>
         <th></th>
     </tr>
     {% for date in futuredates %}
     <tr class="date-{{date.pk}}">
         <td>{{date.datestart| date:'d/m/Y'}}</a></td>
+        <td><a href="/venues/{{company.reference}}/{{venue.reference}}/guestlist/{{date}}">0/80</a></td>
         <td><button class="confirm" data-event="{{date.pk}}" data-date="{{date.datestart| date:'d/m/Y'}}">cancel</button></td>
-
-        <th>Guestlist</th>
-    </tr>
-    {% for date in futuredates %}
-    <tr>
-        <td>{{date.datestart| date:'d/m/Y'}}</a></td>
-        <td><a href="">Guestlist for {{date.datestart| date:'d/m/Y'}}</a></td>
     </tr>
     {% endfor %}
 </table>
@@ -46,10 +41,12 @@ There are curently no dates for this event
 <table>
     <tr>
         <th>Date</th>
+        <th>Attendance</th>
     </tr>
     {% for date in pastdates %}
     <tr>
         <td>{{date.datestart| date:'d/m/Y'}}</a></td>
+        <td></td>
     </tr>
     {% endfor %}
 </table>

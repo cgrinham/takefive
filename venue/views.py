@@ -19,7 +19,7 @@ from .forms import JoinRecurringGuestListForm
 # Tools
 
 
-def countguests(guests):
+def count_guests(guests):
     # Also available as a template filter
     # Get total amount of guests
     # guests must be a Guest object
@@ -31,7 +31,7 @@ def countguests(guests):
     return guestcount
 
 
-def geteventdays(recurringevent):
+def get_event_days(recurringevent):
     """ Get dates for recurring days """
     dayslist = [
         (recurringevent.monday, 'Monday'),
@@ -51,7 +51,7 @@ def geteventdays(recurringevent):
     return days
 
 
-def sortdates(events):
+def sort_dates(events):
     """ Sort events into past and future """
     pastevents = []
     futureevents = []
@@ -99,7 +99,7 @@ def company(request, company):
 
 
 @login_required
-def newcompany(request):
+def new_company(request):
 
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
@@ -142,8 +142,8 @@ def venue(request, company, venue):
     guests = Guest.objects.filter(venue=venue)
     arrivedguests = guests.filter(arrived=True)
 
-    guestcount = countguests(guests)
-    arrivedguestcount = countguests(arrivedguests)
+    guestcount = count_guests(guests)
+    arrivedguestcount = count_guests(arrivedguests)
 
     # Avoid divide by zero
     if guestcount != 0:
@@ -185,7 +185,7 @@ def venue(request, company, venue):
 
 
 @login_required
-def newvenue(request, company):
+def new_venue(request, company):
     # companyname = get_object_or_404(Company, reference=company)
     company = Company.objects.get(reference=company)
 
@@ -217,7 +217,7 @@ def newvenue(request, company):
 
 
 @login_required
-def venuelayout(request, company, venue):
+def venue_layout(request, company, venue):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
 
@@ -238,7 +238,7 @@ def venuelayout(request, company, venue):
 
 
 @login_required
-def deletelayout(request):
+def delete_layout(request):
     try:
         venuelayout = VenueLayout.objects.get(pk=request.GET.get("venuelayout",
                                                                  None))
@@ -256,7 +256,7 @@ def deletelayout(request):
 
 
 @login_required
-def newvenuelayout(request, company, venue):
+def new_venue_layout(request, company, venue):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
 
@@ -285,7 +285,7 @@ def newvenuelayout(request, company, venue):
 
 
 @login_required
-def newvenuelayoutarea(request, company, venue, layout):
+def new_venue_layout_area(request, company, venue, layout):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
 
@@ -317,7 +317,7 @@ def newvenuelayoutarea(request, company, venue, layout):
     return render(request, 'venue/newvenuelayoutarea.html', context)
 
 
-def areahire(request):
+def area_hire(request):
 
     form = AreaHireBookingForm()
 
@@ -354,7 +354,7 @@ def members(request, company, venue):
 
 
 @login_required
-def newmembershiptype(request, company, venue):
+def new_membership_type(request, company, venue):
     # Check if company owns a venue with this reference
     # Check user is allowed to create events for this venue
     company = Company.objects.get(
@@ -384,7 +384,7 @@ def newmembershiptype(request, company, venue):
     return render(request, 'venue/newmembershiptype.html', context)
 
 
-def newmember(request, membershiptype):
+def new_member(request, membershiptype):
     mt = MembershipType.objects.get(pk=membershiptype)
 
     if request.method == 'POST':
@@ -433,7 +433,7 @@ def newmember(request, membershiptype):
 
 
 @login_required
-def viewevent(request, company, venue, event):
+def view_event(request, company, venue, event):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
     event = get_object_or_404(Event, pk=event)
@@ -454,7 +454,7 @@ def viewevent(request, company, venue, event):
 
 
 @login_required
-def ajaxeventdelete(request):
+def ajax_event_delete(request):
     event = Event.objects.get(pk=request.GET.get("event", None))
     event.delete()
     data = {
@@ -464,7 +464,7 @@ def ajaxeventdelete(request):
 
 
 @login_required
-def viewrecurringevent(request, company, venue, event):
+def view_recurring_event(request, company, venue, event):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
     event = RecurringEvent.objects.get(pk=event)
@@ -474,7 +474,7 @@ def viewrecurringevent(request, company, venue, event):
 
     # print(guestlists)
 
-    daylist = geteventdays(event)
+    daylist = get_event_days(event)
     days = ""
     count = 0
 
@@ -509,7 +509,7 @@ def viewrecurringevent(request, company, venue, event):
 
 
 @login_required
-def ajaxrecceventdeleteall(request):
+def ajax_recc_event_delete_all(request):
     event = RecurringEvent.objects.get(pk=request.GET.get("event", None))
     dates = RecurringEventDate.objects.filter(event=event)
     dates.delete()
@@ -522,7 +522,7 @@ def ajaxrecceventdeleteall(request):
 
 
 @login_required
-def ajaxrecceventdeletedate(request):
+def ajax_recc_event_delete_date(request):
     event = RecurringEventDate.objects.get(pk=request.GET.get("event", None))
     guestlist = GuestList.objects.get(recurringevent=event)
 
@@ -535,7 +535,7 @@ def ajaxrecceventdeletedate(request):
 
 
 @login_required
-def newevent(request, company, venue):
+def new_event(request, company, venue):
     # Check if company owns a venue with this reference
     # Check user is allowed to create events for this venue
     company = Company.objects.get(
@@ -556,7 +556,7 @@ def newevent(request, company, venue):
 
 
 @login_required
-def newoneoffevent(request, company, venue):
+def new_one_off_event(request, company, venue):
     # Check if company owns a venue with this reference
     # Check user is allowed to create events for this venue
     company = Company.objects.get(
@@ -597,7 +597,7 @@ def newoneoffevent(request, company, venue):
 
 
 @login_required
-def newrecurringevent(request, company, venue):
+def new_recurring_event(request, company, venue):
     company = Company.objects.get(
             reference=request.user.profile.company.reference)
     venue = Venue.objects.get(reference=venue)
@@ -618,7 +618,7 @@ def newrecurringevent(request, company, venue):
             # Create event dates
             d1 = newevent.firstevent
             d2 = newevent.lastevent
-            days = geteventdays(newevent)
+            days = get_event_days(newevent)
             delta = d2 - d1         # timedelta
 
             for i in range(delta.days + 1):
@@ -678,7 +678,7 @@ def newrecurringevent(request, company, venue):
 
 
 @login_required
-def viewguestlist(request, company, venue, guestlist):
+def view_guestlist(request, company, venue, guestlist):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
     guestlist = GuestList.objects.get(pk=guestlist)
@@ -686,7 +686,7 @@ def viewguestlist(request, company, venue, guestlist):
     event = guestlist.event
 
     guests = Guest.objects.filter(guestlist=guestlist).order_by('firstname')
-    guestcount = countguests(guests)
+    guestcount = count_guests(guests)
 
     context = {
                 'company': company,
@@ -701,7 +701,7 @@ def viewguestlist(request, company, venue, guestlist):
 
 
 @login_required
-def newguestlist(request, event):
+def new_guestlist(request, event):
 
     eventobj = Event.objects.get(pk=event)
 
@@ -728,7 +728,7 @@ def newguestlist(request, event):
     return render(request, 'venue/newguestlist.html', context)
 
 
-def joinguestlist(request, guestlist):
+def join_guestlist(request, guestlist):
     guestlistobj = GuestList.objects.get(pk=guestlist)
 
     # Could check guestlist open here to skip other logic for speed
@@ -786,7 +786,7 @@ def join_recurring_guestlist(request, event):
     event = RecurringEvent.objects.get(pk=event)
     dates = RecurringEventDate.objects.filter(event=event)
 
-    futuredates, pastdates = sortdates(dates)
+    futuredates, pastdates = sort_dates(dates)
 
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
@@ -827,7 +827,7 @@ def join_recurring_guestlist(request, event):
     return render(request, 'venue/joinrecurringguestlist.html', context)
 
 
-def toggleguestlistopen(request):
+def toggle_guestlist_open(request):
     guestlistpk = request.GET.get("guestlist", None)
     guestlist = GuestList.objects.get(pk=guestlistpk)
     if guestlist.listopen is False:
@@ -878,7 +878,7 @@ def door(request, event):
 
 
 @login_required
-def doorajaxarrival(request):
+def door_ajax_arrival(request):
     guest = request.GET.get("guest", None)
     guest = Guest.objects.get(pk=guest)
     if guest.arrived is False:
@@ -896,7 +896,7 @@ def doorajaxarrival(request):
 
 
 @login_required
-def exportcsv(request, guestlist):
+def export_csv(request, guestlist):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="guestlist.csv"'
