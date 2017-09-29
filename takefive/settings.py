@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import emailpassword
+import stripesecrets
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -38,10 +39,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'home',
     'members',
     'venue',
     'venue.templatetags',
+    'pinax.stripe',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -118,3 +121,9 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'tf@christiegrinham.co.uk'
 EMAIL_HOST_PASSWORD = emailpassword.PASSWORD
 EMAIL_USE_TLS = True
+
+
+# pinax-stripe set up
+SITE_ID=1
+PINAX_STRIPE_PUBLIC_KEY = stripesecrets.STRIPE_PUBLIC_KEY
+PINAX_STRIPE_SECRET_KEY = stripesecrets.STRIPE_SECRET_KEY

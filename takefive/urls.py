@@ -24,4 +24,6 @@ urlpatterns = [
     url(r'^gl/(?P<guestlist>\w+)$', 'venue.views.join_guestlist', name='join_guestlist'),
     url(r'^glr/(?P<event>\w+)$', 'venue.views.join_recurring_guestlist', name='join_recurring_guestlist'),
     url(r'^', include('django.contrib.auth.urls')),
+    url(r'^signup/$', venue.views.signup, name='signup'),
+    url(r"^payments/", include("pinax.stripe.urls")),
 ]
