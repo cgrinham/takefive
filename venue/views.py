@@ -1,14 +1,16 @@
 import csv
 import re
 import datetime
+import stripe
+import pprint
 from django.http import JsonResponse
 from dateutil.relativedelta import relativedelta
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
-from django.shortcuts import render, redirect
+from django.conf import settings
 from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest
 from .models import GuestList, Profile, Member, Membership, MembershipType
 from .models import RecurringEvent, RecurringEventDate
@@ -17,6 +19,11 @@ from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
 from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
 from .forms import NewRecurringEventForm, NewVenueLayoutAreaForm
 from .forms import JoinRecurringGuestListForm, SignUpForm
+
+# Set up stripe
+stripe_keys = settings.STRIPE_KEYS
+stripe.api_key = stripe_keys['secret_key']
+
 
 # Tools
 
@@ -927,6 +934,36 @@ def door_ajax_arrival(request):
 
 
 """ misc pages """
+
+
+def payment(request, mt):
+    membershiptype = MembershipType.objects.get(pk=mt)
+    amount = int(membershiptype.price * 100)  # amount in GBP pence
+
+    if request.method == 'POST':
+
+        customer = stripe.Customer.create(
+            email=request.POST['stripeEmail'],
+            source=request.POST['stripeToken'],
+            )
+
+        charge = stripe.Charge.create(
+            customer=customer.id,
+            amount=amount,
+            currency='gbp',
+            description=membershiptype.name,
+            )
+        context = {
+            'thankyou': True
+        }
+    else:
+        context = {
+            'key': stripe_keys['publishable_key'],
+            'mt': membershiptype,
+            'price': amount,
+        }
+
+    return render(request, 'venue/payment.html', context)
 
 
 @login_required
