@@ -3,7 +3,15 @@ from .models import Company, Venue, VenueLayout, Event, Guest, Member
 from .models import Membership, MembershipType, GuestList, AreaHireBooking
 from .models import VenueLayoutArea, RecurringEvent
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 import datetime
+
+
+class SignUpForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ('username', 'password1', 'password2', )
 
 
 class NewCompanyForm(forms.ModelForm):
