@@ -7,6 +7,8 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect
 from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest
 from .models import GuestList, Profile, Member, Membership, MembershipType
 from .models import RecurringEvent, RecurringEventDate
@@ -67,10 +69,22 @@ def sort_dates(events):
 # Views
 
 def signup(request):
-    form = SignUpForm()
-    context = {
-        'form': form,
-    }
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.refresh_from_db()  # load the profile instance created by the signal
+            # user.profile.birth_date = form.cleaned_data.get('birth_date')
+            user.save()
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=user.username, password=raw_password)
+            login(request, user)
+            return redirect('/')
+    else:
+        form = SignUpForm()
+        context = {
+            'form': form,
+        }
 
     return render(request, 'venue/signup.html', context)
 
@@ -128,11 +142,13 @@ def new_company(request):
             # So that we can add the reference
             form = form.save(commit=False)
 
-            print("Set reference!")
             form.reference = re.sub(r'\W+', '', form.name.lower())
 
             print(form.reference)
             form.save()
+
+            request.user.profile.company = Company.objects.get(reference=form.reference)
+            request.user.profile.save()
 
             return HttpResponseRedirect('/venues')
     else:
