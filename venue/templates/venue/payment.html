@@ -1,11 +1,14 @@
-{% extends "venue/base.html" %}
+{% extends "venue/public.html" %}
 {% load staticfiles %}
 
 {% block content %}
-<h3>make a payment</h3>
-<section>
+<section class="message">
+    <h3>{{membership.membershiptype.venue.name}} - make a payment</h3>
+
+    <h4>{{membership}} - {{membership.membershiptype}} Membership</h4>
+    <h5></h5>
     {% if key %}
-    <form action="/venues/payment/{{mt.pk}}" method="post">
+    <form action="/venues/payment/{{membership.pk}}/" method="post">
         {% csrf_token %}
         <article>
           <label>
@@ -15,13 +18,16 @@
 
         <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                 data-key="{{ key }}"
-                data-description="A Flask Charge"
+                data-description="{{membership.membershiptype.venue.name}}"
                 data-amount=" {{price}} "
                 data-locale="auto" data-currency="gbp"></script>
     </form>
     {% endif %}
     {% if thankyou %}
     <p>Thank you for your payment</p>
+    {% endif %}
+    {% if paid %}
+    <p>This membership has already been paid.</p>
     {% endif %}
 </section>
 

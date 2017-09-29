@@ -435,30 +435,23 @@ def new_member(request, membershiptype):
         if form.is_valid():
 
             m = Member(
-                       firstname=form.cleaned_data['firstname'],
-                       lastname=form.cleaned_data['lastname'],
-                       email=form.cleaned_data['email'],
-                       dateofbirth=form.cleaned_data['dateofbirth']
-                       )
+               firstname=form.cleaned_data['firstname'],
+               lastname=form.cleaned_data['lastname'],
+               email=form.cleaned_data['email'],
+               dateofbirth=form.cleaned_data['dateofbirth']
+               )
             m.save()
 
             ms = Membership(
-                            member=m,
-                            membershiptype=mt,
-                            starts=datetime.date.today(),
-                            expires=(datetime.date.today() +
-                                     relativedelta(years=1)),
-                            paid=form.cleaned_data['paid'],
-                            )
-
+                member=m,
+                membershiptype=mt,
+                starts=datetime.date.today(),
+                expires=(datetime.date.today() + relativedelta(years=1)),
+                paid=False,
+                )
             ms.save()
 
-            context = {
-                       'thankyou': True,
-                       'membershiptype': mt,
-                       }
-
-            return render(request, 'venue/newmember.html', context)
+            return HttpResponseRedirect('/venues/payment/%s/' % ms.pk)
     else:
         form = NewMemberForm()
 
@@ -936,31 +929,49 @@ def door_ajax_arrival(request):
 """ misc pages """
 
 
-def payment(request, mt):
-    membershiptype = MembershipType.objects.get(pk=mt)
+def payment(request, membership):
+    membership = Membership.objects.get(pk=membership)
+    member = membership.member
+    membershiptype = membership.membershiptype
     amount = int(membershiptype.price * 100)  # amount in GBP pence
 
-    if request.method == 'POST':
+    if membership.paid is False:
+        if request.method == 'POST':
 
-        customer = stripe.Customer.create(
-            email=request.POST['stripeEmail'],
-            source=request.POST['stripeToken'],
-            )
+            customer = stripe.Customer.create(
+                email=request.POST['stripeEmail'],
+                source=request.POST['stripeToken'],
+                )
 
-        charge = stripe.Charge.create(
-            customer=customer.id,
-            amount=amount,
-            currency='gbp',
-            description=membershiptype.name,
-            )
-        context = {
-            'thankyou': True
-        }
+            charge = stripe.Charge.create(
+                customer=customer.id,
+                amount=amount,
+                currency='gbp',
+                description=membershiptype.name,
+                )
+
+            membership.paid = True
+            membership.save()
+
+            context = {
+                'pagetitle': "make a payment - %s" % membershiptype.venue.name,
+                'thankyou': True,
+                'membership': membership,
+            }
+        else:
+            context = {
+                'pagetitle': "make a payment - %s" % membershiptype.venue.name,
+                'key': stripe_keys['publishable_key'],
+                'mt': membershiptype,
+                'membership': membership,
+                'price': amount,
+            }
     else:
         context = {
-            'key': stripe_keys['publishable_key'],
+            'pagetitle': "make a payment - %s" % membershiptype.venue.name,
+            'membership': membership,
             'mt': membershiptype,
-            'price': amount,
+            'paid': True
         }
 
     return render(request, 'venue/payment.html', context)
