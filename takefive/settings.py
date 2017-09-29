@@ -14,6 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import emailpassword
 import djangosecrets
+import stripesecrets
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -119,3 +120,10 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'tf@christiegrinham.co.uk'
 EMAIL_HOST_PASSWORD = emailpassword.PASSWORD
 EMAIL_USE_TLS = True
+
+
+# Stripe Settings
+STRIPE_KEYS = {
+  'secret_key': stripesecrets.STRIPE_SECRET_KEY,
+  'publishable_key': stripesecrets.STRIPE_PUBLISHABLE_KEY,
+}
