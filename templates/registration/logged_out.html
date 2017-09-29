@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>You've been logged out</title>
-</head>
-<body>
-You've been logged out
+{% extends "venue/base.html" %}
+{% load staticfiles %}
 
-<a href="/">Home</a>
-</body>
-</html>
+{% block content %}
+<section>
+    <p>You've been logged out</p>
+    <p><a href="/">Home</a></p>
+</section>
+{% endblock %}

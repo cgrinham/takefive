@@ -1,10 +1,43 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Take Five</title>
+    <title>TakeFive - Venue Administration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="{% static 'venue/js/jquery-3.2.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'venue/js/jquery-ui.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'venue/js/jquery.timepicker.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'venue/css/jquery-ui.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'venue/css/jquery.timepicker.css' %}">
+    <script type="text/javascript">
+        $(document).ready(function(){
+              $("#id_datestart").change('input', function(){
+                var startdate = $("#id_datestart").val();
+                  $("#id_dateend").val(startdate);
+              });
+
+              $("#id_timestart").change('input', function(){
+                var starttime = $("#id_timestart").val();
+                  $("#id_timeend").val(starttime);
+              });
+        });
+    </script>
+    <link rel="stylesheet" href="{% static 'venue/css/style.css' %}">
 </head>
 <body>
-<h1>Welcome to the Take Five</h1>
-<a href="venues">Venue Admin</a>
+<div id="header">
+<a href="/venues"><h5>takefive</h5></a>
+
+<div id="header-details">guestslists &amp; memberships</div>
+
+<div class="clear"></div>
+</div>
+
+<div id="content">
+    <h1>Welcome</h1>
+    <section>
+        <a href="/venues">Venue Admin</a>
+    </section>
+</div>
 </body>
 </html>

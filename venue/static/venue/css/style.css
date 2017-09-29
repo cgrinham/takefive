@@ -48,10 +48,6 @@ label  {
     display: block;
 }   
 
-input[type=submit] {
-    display: block;
-}
-
 .clear {
     clear: both;
 }
@@ -286,10 +282,6 @@ table {
     border-spacing: 0;
 }
 
-label  {
-    display: block;
-}
-
 .clear {
     clear: both;
 }
@@ -341,6 +333,7 @@ label {
     color: #81B8B9;
     font-size: 1.3em;
     margin: 80px 0 5px;
+    display: block;
 }
 
 .formtable label {
@@ -349,7 +342,7 @@ label {
     line-height: 1.2em;
 }
 
-input[type=text], input[type=email], input[type=number] {
+input[type=text], input[type=email], input[type=number], input[type=password] {
     display: block;
     margin: 0 auto;
     padding: 10px;
