@@ -1,0 +1,19 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<h1>Looks like you've taken a wrong turn...</h1>
+<section>
+{% if user.is_authenticated %}
+
+    <p>Hello {{user.username}}, it appears that you might be in the wrong place!</p>
+    <p>Would you like some help finding your way <a href="/venues/{{company}}">home</a>?</p>
+
+    <a href="/logout">Logout</a>
+{% else %}
+    <a href="/signup">Sign Up</a>
+    <a href="/login">Login</a>
+{% endif %}
+</section>
+
+{% endblock %}

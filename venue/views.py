@@ -6,7 +6,7 @@ import pprint
 from django.http import JsonResponse
 from dateutil.relativedelta import relativedelta
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
@@ -75,6 +75,7 @@ def sort_dates(events):
 
 # Views
 
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -94,7 +95,6 @@ def signup(request):
         }
 
     return render(request, 'venue/signup.html', context)
-
 
 
 def index(request):
@@ -126,20 +126,22 @@ def company(request, company):
 
     # companyname = get_object_or_404(Company, reference=company)
     company = Company.objects.get(reference=company)
+    if request.user.profile.company == company:
+        # venues = get_object_or_404(Company, reference=company)
+        venues = Venue.objects.filter(owner=company)
 
-    # venues = get_object_or_404(Company, reference=company)
-    venues = Venue.objects.filter(owner=company)
+        context = {'company': company,
+                   'venues': venues
+                   }
 
-    context = {'company': company,
-               'venues': venues
-               }
-
-    return render(request, 'venue/company.html', context)
+        return render(request, 'venue/company.html', context)
+    else:
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 @login_required
 def new_company(request):
-
     if request.method == 'POST':
         # Creat a form instance and populate it with data from teh request
         form = NewCompanyForm(data=request.POST)
@@ -172,57 +174,64 @@ def new_company(request):
 
 @login_required
 def venue(request, company, venue):
-    # companyname = get_object_or_404(Company, reference=company)
+    # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            events = Event.objects.filter(venue=venue).order_by('-datestart')
 
-    # venues = get_object_or_404(Company, reference=company)
-    venue = Venue.objects.get(reference=venue)
-    events = Event.objects.filter(venue=venue).order_by('-datestart')
+            # Guest metrics
+            guests = Guest.objects.filter(venue=venue)
+            arrivedguests = guests.filter(arrived=True)
 
-    # Guest metrics
-    guests = Guest.objects.filter(venue=venue)
-    arrivedguests = guests.filter(arrived=True)
+            guestcount = count_guests(guests)
+            arrivedguestcount = count_guests(arrivedguests)
 
-    guestcount = count_guests(guests)
-    arrivedguestcount = count_guests(arrivedguests)
+            # Avoid divide by zero
+            if guestcount != 0:
+                attendance = float(arrivedguestcount) / guestcount * 100
+            else:
+                attendance = 0
 
-    # Avoid divide by zero
-    if guestcount != 0:
-        attendance = float(arrivedguestcount) / guestcount * 100
-    else:
-        attendance = 0
+            # Count members
+            membershiptypes = MembershipType.objects.filter(venue=venue)
+            members = []
+            for membershiptype in membershiptypes:
+                members += Membership.objects.filter(membershiptype=membershiptype)
 
-    # Count members
-    membershiptypes = MembershipType.objects.filter(venue=venue)
-    members = []
-    for membershiptype in membershiptypes:
-        members += Membership.objects.filter(membershiptype=membershiptype)
+            # Sort events into past and future
+            pastevents = []
+            futureevents = []
 
-    # Sort events into past and future
-    pastevents = []
-    futureevents = []
+            for event in events:
+                if event.dateend < datetime.datetime.now().date():
+                    pastevents.append(event)
+                else:
+                    futureevents.append(event)
 
-    for event in events:
-        if event.dateend < datetime.datetime.now().date():
-            pastevents.append(event)
+            recurringevents = RecurringEvent.objects.filter(company=company,
+                                                            venue=venue)
+
+            context = {
+                       'venue': venue,
+                       'company': company,
+                       'pastevents': pastevents,
+                       'recurringevents': recurringevents,
+                       'futureevents': futureevents,
+                       'arrived': arrivedguestcount,
+                       'attendance': attendance,
+                       'membercount': len(members)
+                       }
+
+            return render(request, 'venue/venue.html', context)
         else:
-            futureevents.append(event)
-
-    recurringevents = RecurringEvent.objects.filter(company=company,
-                                                    venue=venue)
-
-    context = {
-               'venue': venue,
-               'company': company,
-               'pastevents': pastevents,
-               'recurringevents': recurringevents,
-               'futureevents': futureevents,
-               'arrived': arrivedguestcount,
-               'attendance': attendance,
-               'membercount': len(members)
-               }
-
-    return render(request, 'venue/venue.html', context)
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
+    else:
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 @login_required
@@ -259,23 +268,33 @@ def new_venue(request, company):
 
 @login_required
 def venue_layout(request, company, venue):
+    # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
-    venue = Venue.objects.get(reference=venue)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
 
-    venuelayouts = VenueLayout.objects.filter(venue=venue)
+            venuelayouts = VenueLayout.objects.filter(venue=venue)
 
-    venuelayoutdict = {}
+            venuelayoutdict = {}
 
-    for venuelayout in venuelayouts:
-        venuelayoutarea = VenueLayoutArea.objects.filter(layout=venuelayout)
-        venuelayoutdict[venuelayout.name] = [venuelayout, venuelayoutarea]
+            for venuelayout in venuelayouts:
+                venuelayoutarea = VenueLayoutArea.objects.filter(layout=venuelayout)
+                venuelayoutdict[venuelayout.name] = [venuelayout, venuelayoutarea]
 
-    context = {'company': company,
-               'venue': venue,
-               'venuelayoutdict': venuelayoutdict,
-               }
+            context = {'company': company,
+                       'venue': venue,
+                       'venuelayoutdict': venuelayoutdict,
+                       }
 
-    return render(request, 'venue/venuelayout.html', context)
+            return render(request, 'venue/venuelayout.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
+    else:
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 @login_required
@@ -298,68 +317,87 @@ def delete_layout(request):
 
 @login_required
 def new_venue_layout(request, company, venue):
+    
+    # Check that the user owns the company
+    # Check that the venue belongs to the company
+    # START CHECKS
     company = Company.objects.get(reference=company)
-    venue = Venue.objects.get(reference=venue)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            if request.method == 'POST':
+                # Creat a form instance and populate it with data from teh request
+                form = NewVenueLayoutForm(data=request.POST)
 
-    if request.method == 'POST':
-        # Creat a form instance and populate it with data from teh request
-        form = NewVenueLayoutForm(data=request.POST)
+                if form.is_valid():
+                    # Create the company object but don't actually save it
+                    # So that we can add the reference
+                    form = form.save(commit=False)
+                    form.company = company
+                    form.venue = venue
+                    form.save()
 
-        if form.is_valid():
-            # Create the company object but don't actually save it
-            # So that we can add the reference
-            form = form.save(commit=False)
-            form.company = company
-            form.venue = venue
-            form.save()
+                    return HttpResponseRedirect('/venues/%s/%s/layout' %
+                                                (company.reference, venue.reference))
+            else:
+                form = NewVenueLayoutForm()
 
-            return HttpResponseRedirect('/venues/%s/%s/layout' %
-                                        (company.reference, venue.reference))
+            context = {'form': form,
+                       'venue': venue
+                       }
+
+            return render(request, 'venue/newvenuelayout.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
     else:
-        form = NewVenueLayoutForm()
-
-    context = {'form': form,
-               'venue': venue
-               }
-
-    return render(request, 'venue/newvenuelayout.html', context)
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 @login_required
 def new_venue_layout_area(request, company, venue, layout):
+    # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
-    venue = Venue.objects.get(reference=venue)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            if request.method == 'POST':
+                form = NewVenueLayoutAreaForm(data=request.POST)
 
-    if request.method == 'POST':
-        # Creat a form instance and populate it with data from teh request
-        form = NewVenueLayoutAreaForm(data=request.POST)
+                if form.is_valid():
+                    # Create the company object but don't actually save it
+                    # So that we can add the reference
+                    form = form.save(commit=False)
+                    form.company = company
+                    form.venue = venue
+                    form.layout = VenueLayout.objects.get(pk=layout)
+                    form.save()
 
-        if form.is_valid():
-            # Create the company object but don't actually save it
-            # So that we can add the reference
-            form = form.save(commit=False)
-            form.company = company
-            form.venue = venue
-            form.layout = VenueLayout.objects.get(pk=layout)
-            form.save()
+                    return HttpResponseRedirect('/venues/%s/%s/layout' %
+                                                (company.reference, venue.reference))
+            else:
+                form = NewVenueLayoutAreaForm()
 
-            return HttpResponseRedirect('/venues/%s/%s/layout' %
-                                        (company.reference, venue.reference))
+            context = {
+                       'company': company,
+                       'venue': venue,
+                       'form': form,
+                       'layout': layout,
+                       }
+
+            return render(request, 'venue/newvenuelayoutarea.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
     else:
-        form = NewVenueLayoutAreaForm()
-
-    context = {
-               'company': company,
-               'venue': venue,
-               'form': form,
-               'layout': layout,
-               }
-
-    return render(request, 'venue/newvenuelayoutarea.html', context)
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 def area_hire(request):
-
     form = AreaHireBookingForm()
 
     context = {
@@ -375,55 +413,70 @@ def area_hire(request):
 @login_required
 def members(request, company, venue):
 
+    # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
-    venue = Venue.objects.get(reference=venue)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            membershiptypes = MembershipType.objects.filter(venue=venue)
+            members = []
 
-    membershiptypes = MembershipType.objects.filter(venue=venue)
-    members = []
+            for membershiptype in membershiptypes:
+                members += Membership.objects.filter(membershiptype=membershiptype)
 
-    for membershiptype in membershiptypes:
-        members += Membership.objects.filter(membershiptype=membershiptype)
+            context = {
+                       'venue': venue,
+                       'company': company,
+                       'members': members,
+                       'membershiptypes': membershiptypes,
+                       }
 
-    context = {
-               'venue': venue,
-               'company': company,
-               'members': members,
-               'membershiptypes': membershiptypes,
-               }
-
-    return render(request, 'venue/members.html', context)
+            return render(request, 'venue/members.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
+    else:
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 @login_required
 def new_membership_type(request, company, venue):
-    # Check if company owns a venue with this reference
-    # Check user is allowed to create events for this venue
-    company = Company.objects.get(
-              reference=request.user.profile.company.reference)
-    venue = Venue.objects.get(reference=venue)
-    if request.method == 'POST':
-        # Creat a form instance and populate it with data from teh request
-        form = NewMembershipType(request.POST)
+    # CHECK IF USER IS ALLOWED TO BE HERE
+    company = Company.objects.get(reference=company)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            if request.method == 'POST':
+                # Create a form instance and populate it with data from teh request
+                form = NewMembershipType(request.POST)
 
-        if form.is_valid():
-            newevent = form.save(commit=False)
-            newevent.company = company
-            newevent.venue = venue
-            newevent.save()
+                if form.is_valid():
+                    newevent = form.save(commit=False)
+                    newevent.company = company
+                    newevent.venue = venue
+                    newevent.save()
 
-            return HttpResponseRedirect('/venues/%s/%s/members/' %
-                                        (company.reference, venue.reference))
+                    return HttpResponseRedirect('/venues/%s/%s/members/' %
+                                                (company.reference, venue.reference))
+            else:
+                form = NewMembershipType()
+
+            context = {
+                       'company': company,
+                       'venue': venue,
+                       'form': form
+                       }
+
+            return render(request, 'venue/newmembershiptype.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
     else:
-        form = NewMembershipType()
-
-    context = {
-               'company': company,
-               'venue': venue,
-               'form': form
-               }
-
-    return render(request, 'venue/newmembershiptype.html', context)
-
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 def new_member(request, membershiptype):
     mt = MembershipType.objects.get(pk=membershiptype)
@@ -468,23 +521,33 @@ def new_member(request, membershiptype):
 
 @login_required
 def view_event(request, company, venue, event):
+    # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
-    venue = Venue.objects.get(reference=venue)
-    event = get_object_or_404(Event, pk=event)
-    print(event)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            event = get_object_or_404(Event, pk=event)
+            print(event)
 
-    guestlists = GuestList.objects.filter(event=event)
+            guestlists = GuestList.objects.filter(event=event)
 
-    print(guestlists)
+            print(guestlists)
 
-    context = {
-               'company': company,
-               'venue': venue,
-               'guestlists': guestlists,
-               'event': event
-               }
+            context = {
+                       'company': company,
+                       'venue': venue,
+                       'guestlists': guestlists,
+                       'event': event
+                       }
 
-    return render(request, 'venue/viewevent.html', context)
+            return render(request, 'venue/viewevent.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
+    else:
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 @login_required
@@ -499,47 +562,57 @@ def ajax_event_delete(request):
 
 @login_required
 def view_recurring_event(request, company, venue, event):
+    # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
-    venue = Venue.objects.get(reference=venue)
-    event = RecurringEvent.objects.get(pk=event)
-    dates = RecurringEventDate.objects.filter(event=event)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            event = RecurringEvent.objects.get(pk=event)
+            dates = RecurringEventDate.objects.filter(event=event)
 
-    # guestlists = GuestList.objects.filter(event=event)
+            # guestlists = GuestList.objects.filter(event=event)
 
-    # print(guestlists)
+            # print(guestlists)
 
-    daylist = get_event_days(event)
-    days = ""
-    count = 0
+            daylist = get_event_days(event)
+            days = ""
+            count = 0
 
-    for day in daylist:
-        if count < (len(daylist) - 1):
-            days += "%s, " % day
+            for day in daylist:
+                if count < (len(daylist) - 1):
+                    days += "%s, " % day
+                else:
+                    days += day
+                count += 1
+
+            # Sort dates into past and future
+            pastdates = []
+            futuredates = []
+
+            for date in dates:
+                if date.dateend < datetime.datetime.now().date():
+                    pastdates.append(date)
+                else:
+                    futuredates.append(date)
+
+            context = {
+                       'company': company,
+                       'venue': venue,
+                       # 'guestlists': guestlists,
+                       'event': event,
+                       'futuredates': futuredates,
+                       'pastdates': pastdates,
+                       'days': days,
+                       }
+
+            return render(request, 'venue/viewrecurringevent.html', context)
         else:
-            days += day
-        count += 1
-
-    # Sort dates into past and future
-    pastdates = []
-    futuredates = []
-
-    for date in dates:
-        if date.dateend < datetime.datetime.now().date():
-            pastdates.append(date)
-        else:
-            futuredates.append(date)
-
-    context = {
-               'company': company,
-               'venue': venue,
-               # 'guestlists': guestlists,
-               'event': event,
-               'futuredates': futuredates,
-               'pastdates': pastdates,
-               'days': days,
-               }
-
-    return render(request, 'venue/viewrecurringevent.html', context)
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
+    else:
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 @login_required
@@ -570,142 +643,164 @@ def ajax_recc_event_delete_date(request):
 
 @login_required
 def new_event(request, company, venue):
-    # Check if company owns a venue with this reference
-    # Check user is allowed to create events for this venue
-    company = Company.objects.get(
-            reference=request.user.profile.company.reference)
-    venue = Venue.objects.get(reference=venue)
+    # CHECK IF USER IS ALLOWED TO BE HERE
+    company = Company.objects.get(reference=company)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            oneoffform = NewEventForm()
+            recurringform = NewRecurringEventForm()
 
-    oneoffform = NewEventForm()
-    recurringform = NewRecurringEventForm()
+            context = {
+                       'company': company,
+                       'venue': venue,
+                       'oneoffform': oneoffform,
+                       'recurringform': recurringform,
+                       }
 
-    context = {
-               'company': company,
-               'venue': venue,
-               'oneoffform': oneoffform,
-               'recurringform': recurringform,
-               }
-
-    return render(request, 'venue/newevent.html', context)
+            return render(request, 'venue/newevent.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
+    else:
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 @login_required
 def new_one_off_event(request, company, venue):
-    # Check if company owns a venue with this reference
-    # Check user is allowed to create events for this venue
-    company = Company.objects.get(
-            reference=request.user.profile.company.reference)
-    venue = Venue.objects.get(reference=venue)
-    error = False
-    if request.method == 'POST':
-        # Creat a form instance and populate it with data from teh request
-        form = NewEventForm(request.POST)
+    # CHECK IF USER IS ALLOWED TO BE HERE
+    company = Company.objects.get(reference=company)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            error = False
+            if request.method == 'POST':
+                # Creat a form instance and populate it with data from teh request
+                form = NewEventForm(request.POST)
 
-        if form.is_valid():
-            newevent = form.save(commit=False)
-            newevent.company = company
-            newevent.venue = venue
-            newevent.save()
-            if form.cleaned_data["createguestlist"] is True:
-                print("Let's make a guestlist!")
-                newguestlist = GuestList(company=company, venue=venue,
-                                         event=newevent,
-                                         name="%s Guestlist" %
-                                              form.cleaned_data["name"],
-                                         maxguests=newevent.venue.capacity)
-                newguestlist.save()
-            return HttpResponseRedirect('/venues/%s/%s' %
-                                        (company.reference, venue.reference))
+                if form.is_valid():
+                    newevent = form.save(commit=False)
+                    newevent.company = company
+                    newevent.venue = venue
+                    newevent.save()
+                    if form.cleaned_data["createguestlist"] is True:
+                        print("Let's make a guestlist!")
+                        newguestlist = GuestList(company=company, venue=venue,
+                                                 event=newevent,
+                                                 name="%s Guestlist" %
+                                                      form.cleaned_data["name"],
+                                                 maxguests=newevent.venue.capacity)
+                        newguestlist.save()
+                    return HttpResponseRedirect('/venues/%s/%s' %
+                                                (company.reference, venue.reference))
+                else:
+                    error = True
+            else:
+                error = True
+
+            context = {
+                       'venue': venue,
+                       'company': company,
+                       'error': error,
+                       }
+
+            return render(request, 'venue/newoneoffevent.html', context)
         else:
-            error = True
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
     else:
-        error = True
-
-    context = {
-               'venue': venue,
-               'company': company,
-               'error': error,
-               }
-
-    return render(request, 'venue/newoneoffevent.html', context)
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 @login_required
 def new_recurring_event(request, company, venue):
-    company = Company.objects.get(
-            reference=request.user.profile.company.reference)
-    venue = Venue.objects.get(reference=venue)
-    error = False
-    if request.method == 'POST':
-        # Creat a form instance and populate it with data from teh request
-        form = NewRecurringEventForm(data=request.POST)
+    # CHECK IF USER IS ALLOWED TO BE HERE
+    company = Company.objects.get(reference=company)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            error = False
+            if request.method == 'POST':
+                # Creat a form instance and populate it with data from teh request
+                form = NewRecurringEventForm(data=request.POST)
 
-        if form.is_valid():
-            print("That form's valid")
-            newevent = form.save(commit=False)
-            newevent.company = company
-            newevent.venue = venue
-            newevent.recurrence = "weekly"
+                if form.is_valid():
+                    print("That form's valid")
+                    newevent = form.save(commit=False)
+                    newevent.company = company
+                    newevent.venue = venue
+                    newevent.recurrence = "weekly"
 
-            newevent.save()
+                    newevent.save()
 
-            # Create event dates
-            d1 = newevent.firstevent
-            d2 = newevent.lastevent
-            days = get_event_days(newevent)
-            delta = d2 - d1         # timedelta
+                    # Create event dates
+                    d1 = newevent.firstevent
+                    d2 = newevent.lastevent
+                    days = get_event_days(newevent)
+                    delta = d2 - d1         # timedelta
 
-            for i in range(delta.days + 1):
-                thisdate = d1 + datetime.timedelta(days=i)
-                if thisdate.strftime('%A') in days:
-                    if thisdate.strftime('%d'):
-                        newdate = RecurringEventDate(
-                            company=company,
-                            venue=venue,
-                            event=newevent,
-                            datestart=thisdate,
-                            dateend=thisdate + datetime.timedelta(days=1),
-                            timestart=newevent.timestart,
-                            timeend=newevent.timeend,
-                            )
-                        newdate.save()
+                    for i in range(delta.days + 1):
+                        thisdate = d1 + datetime.timedelta(days=i)
+                        if thisdate.strftime('%A') in days:
+                            if thisdate.strftime('%d'):
+                                newdate = RecurringEventDate(
+                                    company=company,
+                                    venue=venue,
+                                    event=newevent,
+                                    datestart=thisdate,
+                                    dateend=thisdate + datetime.timedelta(days=1),
+                                    timestart=newevent.timestart,
+                                    timeend=newevent.timeend,
+                                    )
+                                newdate.save()
 
-                        guestlistname = "%s - %s" % (newevent.name,
-                                                     thisdate.strftime(
-                                                        '%d/%m/%Y'))
+                                guestlistname = "%s - %s" % (newevent.name,
+                                                             thisdate.strftime(
+                                                                '%d/%m/%Y'))
 
-                        newguestlist = GuestList(
-                            company=company,
-                            venue=venue,
-                            recurringevent=newdate,
-                            name=guestlistname,
-                            maxguests=venue.capacity,
-                            )
-                        newguestlist.save()
-                else:
-                    pass
+                                newguestlist = GuestList(
+                                    company=company,
+                                    venue=venue,
+                                    recurringevent=newdate,
+                                    name=guestlistname,
+                                    maxguests=venue.capacity,
+                                    )
+                                newguestlist.save()
+                        else:
+                            pass
 
-            # Create guestlists for all events
-            # print("Let's make a guestlist!")
-            # newguestlist = GuestList(company=company, venue=venue,
-            #                          event=newevent,
-            #                          name="%s Guestlist" %
-            #                               form.cleaned_data["name"],
-            #                          maxguests=newevent.venue.capacity)
-            # newguestlist.save()
-            return HttpResponseRedirect('/venues/%s/%s' %
-                                        (company.reference, venue.reference))
+                    # Create guestlists for all events
+                    # print("Let's make a guestlist!")
+                    # newguestlist = GuestList(company=company, venue=venue,
+                    #                          event=newevent,
+                    #                          name="%s Guestlist" %
+                    #                               form.cleaned_data["name"],
+                    #                          maxguests=newevent.venue.capacity)
+                    # newguestlist.save()
+                    return HttpResponseRedirect('/venues/%s/%s' %
+                                                (company.reference, venue.reference))
+            else:
+                form = NewRecurringEventForm()
+
+            context = {
+                       'venue': venue,
+                       'company': company,
+                       'form': form,
+                       'error': error,
+                       }
+
+            return render(request, 'venue/newrecurringevent.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
     else:
-        form = NewRecurringEventForm()
-
-    context = {
-               'venue': venue,
-               'company': company,
-               'form': form,
-               'error': error,
-               }
-
-    return render(request, 'venue/newrecurringevent.html', context)
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 """ GUESTLISTS """
@@ -713,53 +808,75 @@ def new_recurring_event(request, company, venue):
 
 @login_required
 def view_guestlist(request, company, venue, guestlist):
+    # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
-    venue = Venue.objects.get(reference=venue)
-    guestlist = GuestList.objects.get(pk=guestlist)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            guestlist = GuestList.objects.get(pk=guestlist)
 
-    event = guestlist.event
+            event = guestlist.event
 
-    guests = Guest.objects.filter(guestlist=guestlist).order_by('firstname')
-    guestcount = count_guests(guests)
+            guests = Guest.objects.filter(guestlist=guestlist).order_by('firstname')
+            guestcount = count_guests(guests)
 
-    context = {
-                'company': company,
-                'venue': venue,
-                'guests': guests,
-                'guestcount': guestcount,
-                'guestlist': guestlist,
-                'event': event
-               }
+            context = {
+                        'company': company,
+                        'venue': venue,
+                        'guests': guests,
+                        'guestcount': guestcount,
+                        'guestlist': guestlist,
+                        'event': event
+                       }
 
-    return render(request, 'venue/viewguestlist.html', context)
+            return render(request, 'venue/viewguestlist.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
+    else:
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
+
 
 
 @login_required
-def new_guestlist(request, event):
+def new_guestlist(request, company, venue, event):
+    # CHECK IF USER IS ALLOWED TO BE HERE
+    company = Company.objects.get(reference=company)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue)
+        if venue.owner == company:
+            # END CHECKS
+            eventobj = Event.objects.get(pk=event)
 
-    eventobj = Event.objects.get(pk=event)
+            if request.method == 'POST':
+                # Create a form instance and populate it with data from the request
+                form = NewGuestListForm(request.POST)
 
-    if request.method == 'POST':
-        # Create a form instance and populate it with data from the request
-        form = NewGuestListForm(request.POST)
+                if form.is_valid():
+                    form = form.save(commit=False)
+                    form.company = Company.objects.get(
+                        reference=request.user.profile.company.reference)
+                    form.venue = eventobj.venue
+                    form.event = eventobj
+                    form.save()
 
-        if form.is_valid():
-            form = form.save(commit=False)
-            form.company = Company.objects.get(
-                reference=request.user.profile.company.reference)
-            form.venue = eventobj.venue
-            form.event = eventobj
-            form.save()
+                    return HttpResponseRedirect('/venues')
+            else:
+                form = NewGuestListForm()
 
-            return HttpResponseRedirect('/venues')
+            context = {'event': eventobj,
+                       'form': form
+                       }
+
+            return render(request, 'venue/newguestlist.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
     else:
-        form = NewGuestListForm()
-
-    context = {'event': eventobj,
-               'form': form
-               }
-
-    return render(request, 'venue/newguestlist.html', context)
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
 
 
 def join_guestlist(request, guestlist):

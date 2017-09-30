@@ -1,6 +1,7 @@
 TODO
 
 !!! Check all actions can only be performed by the owners of that company !!!
+Re-implement user checks as decorator?
 
 Better new event form
 - Name guestlist
