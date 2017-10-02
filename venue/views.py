@@ -123,21 +123,7 @@ def index(request):
 
 @login_required
 def company(request, company):
-
-    # companyname = get_object_or_404(Company, reference=company)
-    company = Company.objects.get(reference=company)
-    if request.user.profile.company == company:
-        # venues = get_object_or_404(Company, reference=company)
-        venues = Venue.objects.filter(owner=company)
-
-        context = {'company': company,
-                   'venues': venues
-                   }
-
-        return render(request, 'venue/company.html', context)
-    else:
-        return render(request, 'venue/wrongturn.html',
-                      {'company': request.user.profile.company})
+    return HttpResponseRedirect('/venues/')
 
 
 @login_required
@@ -213,12 +199,26 @@ def venue(request, company, venue):
 
             recurringevents = RecurringEvent.objects.filter(company=company,
                                                             venue=venue)
+            redict = {}
+
+            for event in recurringevents:
+                lists = RecurringEventDate.objects.filter(event=event)
+                pre = []
+                fre = []
+
+                for redate in lists:
+                    if redate.dateend < datetime.datetime.now().date():
+                        pre.append(event)
+                    else:
+                        fre.append(redate)
+
+                redict[event.name] = (event, fre[0])
 
             context = {
                        'venue': venue,
                        'company': company,
                        'pastevents': pastevents,
-                       'recurringevents': recurringevents,
+                       'recurringevents': redict,
                        'futureevents': futureevents,
                        'arrived': arrivedguestcount,
                        'attendance': attendance,

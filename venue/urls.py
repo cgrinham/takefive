@@ -1,10 +1,7 @@
-from django.conf.urls import patterns, url, include
-from django.contrib import auth
-
-
+from django.conf.urls import url
 from venue import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^door/(?P<event>\w+)/$', views.door, name='door'),
     url(r'^newcompany/', views.new_company, name='new_company'),
@@ -34,4 +31,4 @@ urlpatterns = patterns('',
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/layout/$', views.venue_layout, name='venue_layout'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/layout/create/$', views.new_venue_layout, name='new_venue_layout'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/layout/createarea/(?P<layout>\w+)$', views.new_venue_layout_area, name='new_venue_layout_area'),
-)
+]

@@ -41,7 +41,7 @@
     </tr>
     {% for event in futureevents %}
     <tr>
-        <td>{{event.datestart| date:'d/m/Y'}} - {{event.timestart|date:'g:iA'|lower}}</td>
+        <td class="center">{{event.datestart| date:'d/m/Y'}} - {{event.timestart|date:'g:iA'|lower}}</td>
         <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{event.pk}}">{{event.name}}</a></td>
     </tr>
     {% endfor %}
@@ -64,11 +64,11 @@ No upcoming events
             <th>Event Name</th>
             <th>Next Event</th>
         </tr>
-        {% for event in recurringevents %}
+        {% for event, value in recurringevents.items %}
         <tr>
-            <td>{{event.firstevent| date:'d/m/Y'}}</td>
-            <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/recurring/{{event.pk}}">{{event.name}}</a></td>
-            <td></td>
+            <td class="center">{{value.0.firstevent| date:'d/m/Y'}}</td>
+            <td class="center"><a href="/venues/{{company.reference}}/{{venue.reference}}/event/recurring/{{value.0.pk}}">{{value.0.name}}</a></td>
+            <td class="center">{{value.1.datestart| date:'d/m/Y'}}</td>
         </tr>
         {% endfor %}
     </table>
@@ -90,7 +90,7 @@ No upcoming recurring events
     </tr>
     {% for event in pastevents %}
     <tr>
-        <td>{{event.datestart| date:'d/m/Y'}}</td>
+        <td class="center">{{event.datestart| date:'d/m/Y'}}</td>
         <td><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{event.pk}}">{{event.name}}</a></td>
     </tr>
     {% endfor %}

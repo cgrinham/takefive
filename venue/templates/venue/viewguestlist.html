@@ -4,7 +4,9 @@
 {% block content %}
 <h4><a href="/venues/{{company.reference}}/{{venue.reference}}/event/{{guestlist.event.pk}}">{{event.name}}</a> at <a href="/venues/{{company.reference}}/{{venue.reference}} ">{{event.venue.name}}</a></h4>
 <h5>{{guestlist.name}} -  {% if guestlist.listopen %}<span class="listopen green" data-guestlist="{{guestlist.pk}}">Open{% else %}<span class="listopen red" data-guestlist="{{guestlist.pk}}">Closed{% endif %}</span></h5>
+<section>
 
+{% if guestcount > 0 %}
 <p>Total Guests: {{guestcount}}</p>
 <br><br>
 <table>
@@ -23,8 +25,11 @@
 </table>
 
 <br>
-<a href="/venues/exportcsv/{{guestlist.pk}}">Export Guest List</a>
+<a href="/venues/exportcsv/{{guestlist.pk}}">Export Guest List</a> |
+{% endif %} 
+<h5 class="center">There are currently no guests on this guestlist</h5>
 <a href="/gl/{{guestlist.pk}}">Join Guest List Link</a>
+</section>
 <script>
     jQuery(document).ready(function() {
         jQuery(function( $ ) {

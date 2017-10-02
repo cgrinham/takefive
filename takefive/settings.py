@@ -28,7 +28,7 @@ SECRET_KEY = djangosecrets.DJANGO_SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'myatthouse.ddns.net']
 
 
 # Application definition
@@ -121,9 +121,17 @@ EMAIL_HOST_USER = 'tf@christiegrinham.co.uk'
 EMAIL_HOST_PASSWORD = emailpassword.PASSWORD
 EMAIL_USE_TLS = True
 
+ADMINS = (('Christie Grinham', 'christiegrinham@gmail.com'),)
 
 # Stripe Settings
 STRIPE_KEYS = {
   'secret_key': stripesecrets.STRIPE_SECRET_KEY,
   'publishable_key': stripesecrets.STRIPE_PUBLISHABLE_KEY,
 }
+
+# SECURITY
+#SECURE_CONTENT_TYPE_NOSNIFF = True
+#SECURE_BROWSER_XSS_FILTER = True
+#SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = 'DENY'

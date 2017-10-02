@@ -6,7 +6,7 @@
 <section>
 {% if user.is_authenticated %}
 
-    <p>Hello {{user.username}} of {{user.profile.company.name}}</p>
+    <p>Hello {{user.first_name}}</p>
     <div class="venues">
     
         {% for venue in venues %}
@@ -21,7 +21,6 @@
     </div>
     <br><br><br>
     <a href="{{user.profile.company.reference}}/newvenue/">New venue</a><br>
-    <a href="/logout">Logout</a>
 {% else %}
     <a href="/signup">Sign Up</a>
     <a href="/login">Login</a>

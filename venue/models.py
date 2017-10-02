@@ -111,13 +111,13 @@ class RecurringEvent(models.Model):
     timestart = models.TimeField("Event Start Time")
     timeend = models.TimeField("Event End Time")
     recurrence = models.CharField("Weekly or Monthly", max_length=7)
-    monday = models.BooleanField("Recurs on Mondays")
-    tuesday = models.BooleanField("Recurs on Tuesdays")
-    wednesday = models.BooleanField("Recurs on Wednesdays")
-    thursday = models.BooleanField("Recurs on Thursdays")
-    friday = models.BooleanField("Recurs on Fridays")
-    saturday = models.BooleanField("Recurs on Saturdays")
-    sunday = models.BooleanField("Recurs on Sundays")
+    monday = models.BooleanField("Recurs on Mondays", default=False)
+    tuesday = models.BooleanField("Recurs on Tuesdays", default=False)
+    wednesday = models.BooleanField("Recurs on Wednesdays", default=False)
+    thursday = models.BooleanField("Recurs on Thursdays", default=False)
+    friday = models.BooleanField("Recurs on Fridays", default=False)
+    saturday = models.BooleanField("Recurs on Saturdays", default=False)
+    sunday = models.BooleanField("Recurs on Sundays", default=False)
 
     def __unicode__(self):
         return "%s - %s - %s" % (self.venue.name, self.firstevent, self.name)
@@ -168,13 +168,13 @@ class Guest(models.Model):
     firstname = models.CharField("First Name", max_length=50)
     lastname = models.CharField("Last Name", max_length=50)
     email = models.EmailField("Email", max_length=254)
-    member = models.BooleanField("Member")
+    member = models.BooleanField("Member", default=False)
     timeslot = models.CharField("Time Slot", max_length=50)
     plusones = models.PositiveIntegerField("Plus Ones", default=0)
     notes = models.CharField("Additional information", max_length=140,
                              blank=True)
     arrived = models.BooleanField("Arrived", default=False)
-    source = models.CharField(max_length="100", default="internal")
+    source = models.CharField(default="internal", max_length=100)
 
     def __unicode__(self):
         return "%s %s" % (self.firstname, self.lastname)
@@ -197,7 +197,7 @@ class MembershipType(models.Model):
     name = models.CharField(max_length=254)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     length = models.CharField(max_length=10)
-    membershipopen = models.BooleanField()
+    membershipopen = models.BooleanField(default=True)
     hidden = models.BooleanField("Hidden membership type", default=False)
     agerestriction = models.PositiveIntegerField(default=18)
     # Length notation

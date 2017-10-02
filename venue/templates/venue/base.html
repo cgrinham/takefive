@@ -29,7 +29,7 @@
 <a href="/venues"><h5>takefive</h5></a>
 
 {% if user.username %}
-<div id="header-details">{{user.profile.company.name}} - {{user.first_name}} {{user.last_name}} | <a href="/logout">Logout</a></div>
+<div id="header-details"><a href="/venues/{{user.profile.company.reference}}">{{user.profile.company.name}}</a> - {{user.first_name}} {{user.last_name}} | <a href="/logout">Logout</a></div>
 {% endif %}
 
 <div class="clear"></div>

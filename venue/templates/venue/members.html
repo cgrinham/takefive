@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block content %}
-<h4><a href="/venues/{{company.reference}}/{{venue.reference}} ">{{venue.name}}</a></h4>
+<h3><a href="/venues/{{company.reference}}/{{venue.reference}} ">{{venue.name| lower}}</a> - members</h3>
 <section>
 <h5>Types of Member</h5>
 
@@ -17,9 +17,9 @@
     {% for membershiptype in membershiptypes %}
     <tr>
         <td><a href="editmembership/{{membershiptype.pk}}">{{membershiptype.name}}</a></td>
-        <td>{{membershiptype.price}}</td>
-        <td>{{membershiptype.length}}</td>
-        <td><a href="/venues/join/{{membershiptype.pk}}">Join</a></td>
+        <td class="center">{{membershiptype.price}}</td>
+        <td class="center">{{membershiptype.length}}</td>
+        <td class="center"><a href="/venues/join/{{membershiptype.pk}}">Join</a></td>
         <td></td>
     </tr>
     {% endfor %}
@@ -42,12 +42,12 @@
     <tr>
         <td>{{member.member.firstname}} {{member.member.lastname}}</td>
         <td>{{member.member.email}}</td>
-        <td>{{member.member.appearances}}</td>
+        <td class="center">{{member.member.appearances}}</td>
     </tr>
     {% endfor %}
 </table>
 
 <br>
-<a href="/venues/exportcsv/{{guestlist.pk}}">Export Members List[]</a> | <a href="importmembers">Import Members</a> |
+<a href="/venues/exportcsv/{{guestlist.pk}}">Export Members List</a> | <a href="importmembers">Import Members</a>
 </section>
 {% endblock %}

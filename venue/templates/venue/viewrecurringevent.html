@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<a href="/venues/{{company.reference}}/{{venue.reference}}"><h3>{{venue}}</h3></a>
+<a href="/venues/{{company.reference}}/{{venue.reference}}"><h3>{{venue.name}}</h3></a>
 <section data-event="{{event.pk}}">
 <div class="deleteall">cancel all events</div>
 <h4>{{event.name}}</h4>
@@ -25,7 +25,7 @@
     {% for date in futuredates %}
     <tr class="date-{{date.pk}}">
         <td>{{date.datestart| date:'d/m/Y'}}</a></td>
-        <td><a href="/venues/{{company.reference}}/{{venue.reference}}/guestlist/{{date}}">0/80</a></td>
+        <td><a href="/venues/{{company.reference}}/{{venue.reference}}/guestlist/{{date.pk}}">0/80</a></td>
         <td><button class="confirm" data-event="{{date.pk}}" data-date="{{date.datestart| date:'d/m/Y'}}">cancel</button></td>
     </tr>
     {% endfor %}
