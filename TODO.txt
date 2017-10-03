@@ -11,6 +11,12 @@ Better new event form
 
 Sign up email
 
+Member import
+- First Name
+- Last Name
+- emailaddress
+- birthday
+
 Event
 - Show area bookings
 

@@ -60,15 +60,13 @@ No upcoming events
 <h4>Recurring Events:</h4>
     <table class="events">
         <tr>
-            <th>Start Date</th>
-            <th>Event Name</th>
             <th>Next Event</th>
+            <th>Event Name</th>
         </tr>
         {% for event, value in recurringevents.items %}
         <tr>
-            <td class="center">{{value.0.firstevent| date:'d/m/Y'}}</td>
-            <td class="center"><a href="/venues/{{company.reference}}/{{venue.reference}}/event/recurring/{{value.0.pk}}">{{value.0.name}}</a></td>
             <td class="center">{{value.1.datestart| date:'d/m/Y'}}</td>
+            <td class="center"><a href="/venues/{{company.reference}}/{{venue.reference}}/event/recurring/{{value.0.pk}}">{{value.0.name}}</a></td>
         </tr>
         {% endfor %}
     </table>

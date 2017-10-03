@@ -40,6 +40,8 @@ class Venue(models.Model):
     reference = models.CharField(max_length=40)
     capacity = models.PositiveIntegerField("Venue Capacity")
     defaultplusones = models.PositiveIntegerField("Default max Plus Ones")
+    logo = models.CharField("Venue logo", max_length=8, blank=True, null=True)
+    background = models.CharField("Background for public pages such as guestlist sign up", max_length=8, blank=True, null=True)
 
     def __unicode__(self):
         return self.reference

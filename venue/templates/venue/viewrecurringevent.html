@@ -9,8 +9,8 @@
 <div class="deleteall">cancel all events</div>
 <h4>{{event.name}}</h4>
 <p>{{event.firstevent| date:'d/m/Y'}} until {{event.lastevent| date:'d/m/Y'}}</p>
-<p>Every {{days}}</p>
-<p class="description">{{event.description}}</p>
+<p>Every {{days}}</p><br>
+<p class="description">{{event.description}}</p><br>
 <a href="/glr/{{event.pk}}">Join Guest List Link</a>
 </section>
 <section>
@@ -24,9 +24,9 @@
     </tr>
     {% for date in futuredates %}
     <tr class="date-{{date.pk}}">
-        <td>{{date.datestart| date:'d/m/Y'}}</a></td>
-        <td><a href="/venues/{{company.reference}}/{{venue.reference}}/guestlist/{{date.pk}}">0/80</a></td>
-        <td><button class="confirm" data-event="{{date.pk}}" data-date="{{date.datestart| date:'d/m/Y'}}">cancel</button></td>
+        <td class="center">{{date.datestart| date:'d/m/Y'}}</a></td>
+        <td class="center"><a href="/venues/{{company.reference}}/{{venue.reference}}/guestlist/{{date.pk}}">0/80</a></td>
+        <td class="center"><button class="confirm" data-event="{{date.pk}}" data-date="{{date.datestart| date:'d/m/Y'}}">cancel</button></td>
     </tr>
     {% endfor %}
 </table>
