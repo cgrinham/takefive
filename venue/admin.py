@@ -14,7 +14,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 class VenueAdmin(admin.ModelAdmin):
-    fields = ['owner', 'name', 'reference', 'capacity', 'defaultplusones']
+    fields = ['owner', 'name', 'reference', 'capacity', 'defaultplusones', 'logo', 'background']
 
 
 class VenueLayoutAdmin(admin.ModelAdmin):

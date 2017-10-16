@@ -9,6 +9,7 @@
     <script type="text/javascript" src="{% static 'venue/js/jquery.timepicker.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'venue/css/jquery-ui.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'venue/css/jquery.timepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'venue/fa/css/font-awesome.min.css' %}">
     <script type="text/javascript">
         $(document).ready(function(){
               $("#id_datestart").change('input', function(){
@@ -105,29 +106,29 @@
             font-size: 1.2em;
         }
 
-        #header {
-            display: block;
-            width:  100%;
+        .home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
             background-color: #acc;
             padding:  10px;
             box-sizing: border-box;
-            border-bottom: solid 1px #8aa;
-        }
-
-        #header h5 {
-            float: left;
-            clear: both;
-            margin-bottom: 0;
-        }
-
-        #header-details {
-            float: right;
-            text-align: right;
+            border: solid 1px #8aa;
+            text-align: center;
+            color: #000;
+            font-size: 20px;
         }
 
         body {
             background-color: black;
+            {% if guestlistobj.event.venue.background %}
+            background-image: url("{% static 'venue/img/bgs/'|add:guestlistobj.event.venue.background %}");
+            {% else %}
             background-image: url("{% static 'venue/img/twmpbs.jpg' %}");
+            {% endif %}
             background-size: 100%;
             background-position: 0 0;
             background-repeat: no-repeat;
@@ -214,16 +215,9 @@
 <body>
 
 
-{% if user.username %}
-<div id="header">
-<a href="/venues"><h5>Home</h5></a>
-
-{% if user.username %}
-<div id="header-details">{{user.profile.company.name}} - {{user.first_name}} {{user.last_name}} | <a href="/logout">Logout</a></div>
-{% endif %}
-
-<div class="clear"></div>
-</div>
+{% if user.is_authenticated %}
+<a href="/venues/{{user.profile.company}}"><div class="home"><i class="fa fa-home" aria-hidden="true"></i>
+</div></a>
 {% endif %}
 
 

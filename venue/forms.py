@@ -214,3 +214,9 @@ class NewMemberForm(forms.Form):
     email = forms.EmailField(label="Please provide an email address so we can contact you",
                              max_length=254)  # Member
     dateofbirth = forms.DateField(label="What is your date of birth?", widget=forms.DateInput(attrs={'class': 'datepicker'}))  # Member
+
+
+class MemberImportForm(forms.Form):
+    file = forms.FileField()
+
+

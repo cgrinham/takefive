@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/event/(?P<event>\w+)/$', views.view_event, name='view_event'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/members/$', views.members, name='members'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/members/newtype/$', views.new_membership_type, name='new_membership_type'),
+    url(r'^(?P<company>\w+)/(?P<venue>\w+)/members/import/$', views.import_members, name='import_members'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/layout/$', views.venue_layout, name='venue_layout'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/layout/create/$', views.new_venue_layout, name='new_venue_layout'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/layout/createarea/(?P<layout>\w+)$', views.new_venue_layout_area, name='new_venue_layout_area'),

@@ -2,11 +2,15 @@
 {% load staticfiles %}
 
 {% block content %}
-<h1>Welcome to the venue administration site</h1>
+<div class="subheader">
+    <h1 style="float: right">your venues</h1>
+    <div class="actions">
+        <a href="{{user.profile.company.reference}}/newvenue/">New venue</a>    
+    </div>
+    <div class="clear"></div>
+</div>
 <section>
 {% if user.is_authenticated %}
-
-    <p>Hello {{user.first_name}}</p>
     <div class="venues">
     
         {% for venue in venues %}
@@ -19,8 +23,6 @@
         {% endfor %}
     
     </div>
-    <br><br><br>
-    <a href="{{user.profile.company.reference}}/newvenue/">New venue</a><br>
 {% else %}
     <a href="/signup">Sign Up</a>
     <a href="/login">Login</a>

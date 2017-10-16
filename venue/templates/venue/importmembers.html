@@ -1,0 +1,42 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<h3>{{venue.name}} - Import Members</h3>
+<section>
+{% if form %}
+
+<form action="/venues/{{company.reference}}/{{venue.reference}}/members/import/" enctype="multipart/form-data" method="post">
+ {% csrf_token %}
+ {{ form }}
+ <input type="submit" value="Upload">
+    
+</form>
+{% elif data %}
+<form action="/venues/{{company.reference}}/{{venue.reference}}/members/import/" method="post">
+    
+    {% csrf_token %}
+    {% for field in modelfields %}
+    <div>
+        <h3>{{field.name}}</h3>
+    
+        <select name="{{field}}" id="select-{{field}}">
+        {% for uploadfield in uploadfields %}
+            <option value="{{uploadfield.0}}">{{uploadfield.1}}</option>
+        {% endfor %}
+            <option value="none">N/A</option>
+        </select>
+    </div>
+    {% endfor %}
+    <input type="hidden" name="csvfile" value="{{csv}}">
+    <input type="submit" value="Import">
+</form>
+
+{% elif thankyou %}
+{{message}}
+{% else %}
+
+{% endif %}
+</section>
+{% endblock %}

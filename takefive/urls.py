@@ -21,8 +21,8 @@ urlpatterns = [
     url(r'^', include('home.urls', namespace='home')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^venues/', include('venue.urls', namespace='venue')),
-    url(r'^gl/(?P<guestlist>\w+)$', venue.views.join_guestlist, name='join_guestlist'),
-    url(r'^glr/(?P<event>\w+)$', venue.views.join_recurring_guestlist, name='join_recurring_guestlist'),
+    url(r'^gl/(?P<guestlist>\w+)/$', venue.views.join_guestlist, name='join_guestlist'),
+    url(r'^glr/(?P<event>\w+)/$', venue.views.join_recurring_guestlist, name='join_recurring_guestlist'),
     url(r'^', include('django.contrib.auth.urls')),
     url(r'^signup/$', venue.views.signup, name='signup'),
 ]

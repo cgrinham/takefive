@@ -1,8 +1,10 @@
+import os
 import csv
 import re
 import datetime
 import stripe
-import pprint
+import string
+import random
 from django.http import JsonResponse
 from dateutil.relativedelta import relativedelta
 from django.shortcuts import render, get_object_or_404, redirect
@@ -18,7 +20,7 @@ from .forms import NewCompanyForm, NewVenueForm, NewVenueLayoutForm
 from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
 from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
 from .forms import NewRecurringEventForm, NewVenueLayoutAreaForm
-from .forms import JoinRecurringGuestListForm, SignUpForm
+from .forms import JoinRecurringGuestListForm, SignUpForm, MemberImportForm
 
 # Set up stripe
 stripe_keys = settings.STRIPE_KEYS
@@ -72,6 +74,17 @@ def sort_dates(events):
             futureevents.append(event)
 
     return futureevents, pastevents
+
+
+def handle_uploaded_file(f):
+    filename = "%s.csv" % ''.join(random.choice(
+        string.ascii_uppercase +
+        string.digits) for _ in range(8))
+    with open(filename, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+    return filename
 
 # Views
 
@@ -163,7 +176,7 @@ def venue(request, company, venue):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             events = Event.objects.filter(venue=venue).order_by('-datestart')
@@ -271,7 +284,7 @@ def venue_layout(request, company, venue):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
 
@@ -323,7 +336,7 @@ def new_venue_layout(request, company, venue):
     # START CHECKS
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             if request.method == 'POST':
@@ -361,7 +374,7 @@ def new_venue_layout_area(request, company, venue, layout):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             if request.method == 'POST':
@@ -416,7 +429,7 @@ def members(request, company, venue):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             membershiptypes = MembershipType.objects.filter(venue=venue)
@@ -446,7 +459,7 @@ def new_membership_type(request, company, venue):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             if request.method == 'POST':
@@ -515,7 +528,89 @@ def new_member(request, membershiptype):
 
     return render(request, 'venue/newmember.html', context)
 
+@login_required
+def import_members(request, company, venue):
+# CHECK IF USER IS ALLOWED TO BE HERE
+    company = Company.objects.get(reference=company)
+    if request.user.profile.company == company:
+        venue = Venue.objects.get(reference=venue, owner=company)
+        if venue.owner == company:
+            # END CHECKS
+            if request.method == 'POST':
+                if request.FILES:
+                    form = MemberImportForm(request.POST, request.FILES)
+                    newfile = handle_uploaded_file(request.FILES['file'])
 
+                    with open(newfile) as f:
+                        rdr = csv.reader(f)
+
+                        uploadfields = []
+                        count = 0
+                        for item in next(rdr):
+                            uploadfields.append((count, item))
+                            count +=1
+
+                        context = {
+                            'company': company,
+                            'venue': venue,
+                            'data': True,
+                            'modelfields': Member._meta.fields,
+                            'uploadfields': uploadfields,
+                            'csv': newfile,
+                        }
+
+                    return render(request, 'venue/importmembers.html', context)
+                else:
+                    with open(request.POST['csvfile']) as f:
+                        rdr=csv.reader(f)
+                        count = 0
+                        for line in rdr:
+                            if count > 0:
+                                print(line[int(request.POST['venue.Member.dateofbirth'])])
+                                newmember = Member(
+                                    firstname=line[int(request.POST['venue.Member.firstname'])],
+                                    lastname=line[int(request.POST['venue.Member.lastname'])],
+                                    dateofbirth=line[int(request.POST['venue.Member.dateofbirth'])],
+                                    email=line[int(request.POST['venue.Member.email'])],
+                                    )
+                                newmember.save()
+                                newmembership = Membership(
+                                        member=newmember,
+                                        membershiptype=MembershipType.objects.get(pk=2),
+                                        starts=datetime.date.today(),
+                                        expires=(datetime.date.today() + relativedelta(years=1)),
+                                        paid=True,
+                                    )
+                                newmembership.save()
+                            count += 1
+
+                    os.remove(request.POST['csvfile'])
+                    print(request.POST)
+                    context = {
+                        'message': "Hello",
+                        'thankyou': True,
+                    }
+                    return render(request, 'venue/importmembers.html', context)
+
+            else:
+                form = MemberImportForm()
+
+            context = {
+                       'company': company,
+                       'venue': venue,
+                       'form': form
+                       }
+
+            return render(request, 'venue/importmembers.html', context)
+        else:
+            return render(request, 'venue/wrongturn.html',
+                          {'company': request.user.profile.company})
+    else:
+        return render(request, 'venue/wrongturn.html',
+                      {'company': request.user.profile.company})
+
+
+""" END MEMBERS """
 """ EVENTS """
 
 
@@ -524,7 +619,7 @@ def view_event(request, company, venue, event):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             event = get_object_or_404(Event, pk=event)
@@ -565,7 +660,7 @@ def view_recurring_event(request, company, venue, event):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             event = RecurringEvent.objects.get(pk=event)
@@ -646,7 +741,7 @@ def new_event(request, company, venue):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             oneoffform = NewEventForm()
@@ -673,7 +768,7 @@ def new_one_off_event(request, company, venue):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             error = False
@@ -721,7 +816,7 @@ def new_recurring_event(request, company, venue):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             error = False
@@ -811,7 +906,7 @@ def view_guestlist(request, company, venue, guestlist):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             guestlist = GuestList.objects.get(pk=guestlist)
@@ -845,7 +940,7 @@ def new_guestlist(request, company, venue, event):
     # CHECK IF USER IS ALLOWED TO BE HERE
     company = Company.objects.get(reference=company)
     if request.user.profile.company == company:
-        venue = Venue.objects.get(reference=venue)
+        venue = Venue.objects.get(reference=venue, owner=company)
         if venue.owner == company:
             # END CHECKS
             eventobj = Event.objects.get(pk=event)
@@ -918,16 +1013,19 @@ def join_guestlist(request, guestlist):
                       )
 
             context = {'guestlistobj': guestlistobj,
-                       'thankyou': True
+                       'thankyou': True,
+                       'pagetitle': "Thank you...",
                        }
 
             return render(request, 'venue/joinguestlist.html', context)
     else:
         form = JoinGuestListForm(guestlistpk=guestlist)
 
-    context = {'guestlistobj': guestlistobj,
+    context = {
+                'guestlistobj': guestlistobj,
                'guests': guestcount,
-               'form': form
+               'form': form,
+               'pagetitle': "Join the guestlist",
                }
 
     return render(request, 'venue/joinguestlist.html', context)
@@ -962,7 +1060,8 @@ def join_recurring_guestlist(request, event):
 
             context = {
                        'event': event,
-                       'thankyou': True
+                       'thankyou': True,
+                       'pagetitle': "Thank you...",
                        }
 
             return render(request, 'venue/joinguestlist.html', context)
@@ -973,6 +1072,7 @@ def join_recurring_guestlist(request, event):
                'event': event,
                'dates': futuredates,
                'form': form,
+               'pagetitle': "Join the guestlist",
                }
 
     return render(request, 'venue/joinrecurringguestlist.html', context)

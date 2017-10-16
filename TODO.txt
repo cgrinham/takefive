@@ -2,6 +2,8 @@ TODO
 
 Area hire
 
+Fix join recurring guestlist form
+
 !!! Check all actions can only be performed by the owners of that company !!!
 Re-implement user checks as decorator?
 Security checks for all actiosn (ajax etc)
