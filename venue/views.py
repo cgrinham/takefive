@@ -21,6 +21,7 @@ from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
 from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
 from .forms import NewRecurringEventForm, NewVenueLayoutAreaForm
 from .forms import JoinRecurringGuestListForm, SignUpForm, MemberImportForm
+from .forms import VenueSettingsForm
 from .decorators import user_owns_company_and_venue
 
 
@@ -240,6 +241,23 @@ def venue(request, company, venue):
                }
 
     return render(request, 'venue/venue.html', context)
+
+
+@login_required
+@user_owns_company_and_venue
+def venue_settings(request, company, venue):
+    # Get models
+    company = Company.objects.get(reference=company)
+    venue = Venue.objects.get(reference=venue)
+
+    form = VenueSettingsForm()
+
+    context = {'company': company,
+               'venue': venue,
+               'form': form,
+               }
+
+    return render(request, 'venue/venuesettings.html', context)
 
 
 @login_required

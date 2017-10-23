@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^(?P<company>\w+)/$', views.company, name='company'),
     url(r'^(?P<company>\w+)/newvenue/$', views.new_venue, name='new_venue'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/$', views.venue, name='venue'),
+    url(r'^(?P<company>\w+)/(?P<venue>\w+)/settings/$', views.venue_settings, name='venue_settings'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/guestlist/(?P<guestlist>\w+)/$', views.view_guestlist, name='view_guestlist'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/newguestlist/(?P<event>\w+)/$', views.new_guestlist, name='new_guestlist'),
     url(r'^(?P<company>\w+)/(?P<venue>\w+)/event/new/$', views.new_event, name='new_event'),
