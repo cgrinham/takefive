@@ -5,7 +5,7 @@
 
 <h2>{{venue.name}} - company settings</h2>
 
-<form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/layout/create/" method="post">
+<form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/settings/" method="post">
  {% csrf_token %}
  {{ form }}
  <input type="submit" value="Submit">

@@ -250,14 +250,31 @@ def venue_settings(request, company, venue):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
 
-    form = VenueSettingsForm()
+    if request.method == "POST":
+        form = VenueSettingsForm(data=request.POST)
+        if form.is_valid():
+            venue.defaultplusones = form.cleaned_data['defaultplusones']
+            venue.capacity = form.cleaned_data['capacity']
+            venue.address = form.cleaned_data['address']
+            venue.stripesecretkey = form.cleaned_data['stripesecretkey']
+            venue.stripepubkey = form.cleaned_data['stripepubkey']
+            venue.save()
+        return HttpResponseRedirect('/venues')
+    else:
+        form = VenueSettingsForm(initial={
+                'defaultplusones': venue.defaultplusones,
+                'capacity': venue.capacity,
+                'address': venue.address,
+                'stripesecretkey': venue.stripesecretkey,
+                'stripepubkey': venue.stripepubkey,
+            })
 
-    context = {'company': company,
-               'venue': venue,
-               'form': form,
-               }
+        context = {'company': company,
+                   'venue': venue,
+                   'form': form,
+                   }
 
-    return render(request, 'venue/venuesettings.html', context)
+        return render(request, 'venue/venuesettings.html', context)
 
 
 @login_required
