@@ -267,6 +267,15 @@ textarea {
     color: #f77;
 }
 
+.doorlink {
+    font-weight: lighter;
+    position: absolute;
+    right: 10px;
+    top: 30px;
+    cursor: pointer;
+    color: #7f7;
+}
+
 .guestlistlink {
     font-weight: lighter;
     position: absolute;
