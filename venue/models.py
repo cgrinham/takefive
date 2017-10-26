@@ -41,7 +41,21 @@ class Venue(models.Model):
     capacity = models.PositiveIntegerField("Venue Capacity")
     defaultplusones = models.PositiveIntegerField("Default max Plus Ones")
     logo = models.CharField("Venue logo", max_length=12, blank=True, null=True)
-    background = models.CharField("Background for public pages such as guestlist sign up", max_length=12, blank=True, null=True)
+    background = models.CharField(
+        "Background for public pages such as guestlist sign up",
+        max_length=12,
+        blank=True,
+        null=True
+        )
+    stripesecretkey = models.CharField(max_length=32, blank=True, null=True)
+    stripepubkey = models.CharField(max_length=32, blank=True, null=True)
+    address = models.TextField(null=True, blank=True)
+    email = models.EmailField(
+        "The email address which will be displayed to the public",
+        max_length=254,
+        null=True,
+        blank=True
+        )
 
     def __unicode__(self):
         return self.reference

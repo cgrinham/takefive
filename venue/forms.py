@@ -25,6 +25,11 @@ class NewVenueForm(forms.ModelForm):
         model = Venue
         fields = ['name', 'capacity', 'defaultplusones']
 
+class VenueSettingsForm(forms.ModelForm):
+    class Meta:
+        model = Venue
+        fields = ['defaultplusones', 'capacity', 'address', 'stripesecretkey', 'stripepubkey']
+
 
 class NewVenueLayoutForm(forms.ModelForm):
     class Meta:
@@ -218,5 +223,3 @@ class NewMemberForm(forms.Form):
 
 class MemberImportForm(forms.Form):
     file = forms.FileField()
-
-

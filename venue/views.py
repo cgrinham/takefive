@@ -21,6 +21,7 @@ from .forms import NewGuestListForm, NewEventForm, JoinGuestListForm
 from .forms import AreaHireBookingForm, NewMembershipType, NewMemberForm
 from .forms import NewRecurringEventForm, NewVenueLayoutAreaForm
 from .forms import JoinRecurringGuestListForm, SignUpForm, MemberImportForm
+from .forms import VenueSettingsForm
 from .decorators import user_owns_company_and_venue
 
 
@@ -240,6 +241,40 @@ def venue(request, company, venue):
                }
 
     return render(request, 'venue/venue.html', context)
+
+
+@login_required
+@user_owns_company_and_venue
+def venue_settings(request, company, venue):
+    # Get models
+    company = Company.objects.get(reference=company)
+    venue = Venue.objects.get(reference=venue)
+
+    if request.method == "POST":
+        form = VenueSettingsForm(data=request.POST)
+        if form.is_valid():
+            venue.defaultplusones = form.cleaned_data['defaultplusones']
+            venue.capacity = form.cleaned_data['capacity']
+            venue.address = form.cleaned_data['address']
+            venue.stripesecretkey = form.cleaned_data['stripesecretkey']
+            venue.stripepubkey = form.cleaned_data['stripepubkey']
+            venue.save()
+        return HttpResponseRedirect('/venues')
+    else:
+        form = VenueSettingsForm(initial={
+                'defaultplusones': venue.defaultplusones,
+                'capacity': venue.capacity,
+                'address': venue.address,
+                'stripesecretkey': venue.stripesecretkey,
+                'stripepubkey': venue.stripepubkey,
+            })
+
+        context = {'company': company,
+                   'venue': venue,
+                   'form': form,
+                   }
+
+        return render(request, 'venue/venuesettings.html', context)
 
 
 @login_required
@@ -1027,50 +1062,57 @@ def door_ajax_arrival(request):
 
 def payment(request, membership):
     membership = Membership.objects.get(pk=membership)
-    member = membership.member
     membershiptype = membership.membershiptype
-    amount = int(membershiptype.price * 100)  # amount in GBP pence
+    venue = membershiptype.venue
 
-    if membership.paid is False:
-        if request.method == 'POST':
+    if venue.stripepubkey is not None:
+        amount = int(membershiptype.price * 100)  # amount in GBP pence
 
-            customer = stripe.Customer.create(
-                email=request.POST['stripeEmail'],
-                source=request.POST['stripeToken'],
-                )
+        if membership.paid is False:
+            if request.method == 'POST':
 
-            charge = stripe.Charge.create(
-                customer=customer.id,
-                amount=amount,
-                currency='gbp',
-                description=membershiptype.name,
-                )
+                customer = stripe.Customer.create(
+                    email=request.POST['stripeEmail'],
+                    source=request.POST['stripeToken'],
+                    )
 
-            membership.paid = True
-            membership.save()
+                charge = stripe.Charge.create(
+                    customer=customer.id,
+                    amount=amount,
+                    currency='gbp',
+                    description=membershiptype.name,
+                    )
 
-            context = {
-                'pagetitle': "make a payment - %s" % membershiptype.venue.name,
-                'thankyou': True,
-                'membership': membership,
-            }
+                membership.paid = True
+                membership.save()
+
+                context = {
+                    'pagetitle': "make a payment - %s" % membershiptype.venue.name,
+                    'thankyou': True,
+                    'membership': membership,
+                }
+            else:
+                context = {
+                    'pagetitle': "make a payment - %s" % membershiptype.venue.name,
+                    'key': venue.stripepubkey,
+                    'mt': membershiptype,
+                    'membership': membership,
+                    'price': amount,
+                }
         else:
             context = {
                 'pagetitle': "make a payment - %s" % membershiptype.venue.name,
-                'key': stripe_keys['publishable_key'],
-                'mt': membershiptype,
                 'membership': membership,
-                'price': amount,
+                'mt': membershiptype,
+                'paid': True
             }
+
+        return render(request, 'venue/payment.html', context)
     else:
         context = {
-            'pagetitle': "make a payment - %s" % membershiptype.venue.name,
-            'membership': membership,
-            'mt': membershiptype,
-            'paid': True
+            'error': "Sorry, this venue's payment details aren't set up correclty",
         }
-
-    return render(request, 'venue/payment.html', context)
+        return render(request, 'venue/error.html', context)
 
 
 @login_required

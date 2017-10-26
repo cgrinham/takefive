@@ -1,0 +1,16 @@
+{% extends "venue/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<h2>{{venue.name| lower}} - Company Settings</h2>
+<section>
+<form action="/venues/{{user.profile.company.reference}}/{{venue.reference}}/settings/" method="post">
+ {% csrf_token %}
+ {{ form }}
+ <input type="submit" value="Submit">
+    
+</form>
+</section>
+
+{% endblock %}
