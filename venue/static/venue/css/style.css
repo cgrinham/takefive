@@ -404,6 +404,9 @@ input[type=submit] {
 .venues {
     width: 100%;
     text-align: center;
+    margin: 1em;
+    display: flex;
+    justify-content: space-around;
 }
 
 .venue{
