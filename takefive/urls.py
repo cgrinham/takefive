@@ -15,10 +15,18 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from rest_framework import routers
 import venue
+from venue.views import EventViewSet
+
+router = routers.DefaultRouter()
+router.register(r'events', EventViewSet)
 
 urlpatterns = [
+    url(r'^', include(router.urls)),
     url(r'^', include('home.urls', namespace='home')),
+    url(r'^api-auth/', include('rest_framework.urls',
+                               namespace='rest_framework')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^venues/', include('venue.urls', namespace='venue')),
     url(r'^gl/(?P<guestlist>\w+)/$', venue.views.join_guestlist, name='join_guestlist'),

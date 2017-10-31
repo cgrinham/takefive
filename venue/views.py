@@ -13,6 +13,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from django.conf import settings
+from rest_framework import viewsets
 from .models import Company, Venue, VenueLayout, VenueLayoutArea, Event, Guest
 from .models import GuestList, Member, Membership, MembershipType
 from .models import RecurringEvent, RecurringEventDate
@@ -23,6 +24,7 @@ from .forms import NewRecurringEventForm, NewVenueLayoutAreaForm
 from .forms import JoinRecurringGuestListForm, SignUpForm, MemberImportForm
 from .forms import VenueSettingsForm
 from .decorators import user_owns_company_and_venue
+from .serializers import EventSerializer
 
 
 # Set up stripe
@@ -1162,3 +1164,16 @@ def testpage(request):
     guest.save()"""
 
     return render(request, 'venue/test.html')
+
+#
+# API
+#
+
+
+class EventViewSet(viewsets.ModelViewSet):
+    """
+    API Endpoint that lets Events be viewed
+    """
+
+    queryset = Event.objects.all().order_by('datestart')
+    serializer_class = EventSerializer
