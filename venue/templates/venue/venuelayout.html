@@ -9,7 +9,9 @@
 
     {% for layoutkey, layoutvalue in venuelayoutdict.items %}
 <section data-venuelayout="{{layoutvalue.0.pk}}" class="layout-{{layoutvalue.0.pk}}">
-    <div class="delete">delete layout</div>
+    <div class="floater">
+        <div class="delete">delete layout</div>
+    </div>
     <h5>{{layoutvalue.0.name}}</h5>
 
     <table>

@@ -6,8 +6,12 @@
 
 <a href="/venues/{{company.reference}}/{{venue.reference}}"><h3>{{venue.name}}</h3></a>
 <section data-event="{{event.pk}}">
-<div class="delete">cancel event</div>
-<div class="doorlink"><a href="/venues/door/{{event.pk}}">door</a></div>
+<div class="floater">
+  {% if past_event == False %}
+  <div class="delete">cancel event</div>
+  {% endif %}
+  <div class="doorlink"><a href="/venues/door/{{event.pk}}">door <i class="fa fa-external-link"></i></a></div>
+</div>
 <h4>{{event.name}}</h4>
 <p>{{event.datestart}} at {{event.timestart|date:'g:iA'|lower}} until {{event.dateend}} at {{event.timeend|date:'g:iA'|lower}}</p><br>
 <p class="description">{{event.description}}</p>

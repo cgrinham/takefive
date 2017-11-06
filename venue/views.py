@@ -598,17 +598,22 @@ def view_event(request, company, venue, event):
     company = Company.objects.get(reference=company)
     venue = Venue.objects.get(reference=venue)
     event = get_object_or_404(Event, pk=event)
-    print(event)
 
+    # Get guestlist
     guestlists = GuestList.objects.filter(event=event)
 
-    print(guestlists)
+    # check if an event is in the past
+    if event.datestart < datetime.date.today():
+        past_event = True
+    else:
+        past_event = False
 
     context = {
                'company': company,
                'venue': venue,
                'guestlists': guestlists,
-               'event': event
+               'event': event,
+               'past_event': past_event,
                }
 
     return render(request, 'venue/viewevent.html', context)
