@@ -24,7 +24,7 @@ from .forms import NewRecurringEventForm, NewVenueLayoutAreaForm
 from .forms import JoinRecurringGuestListForm, SignUpForm, MemberImportForm
 from .forms import VenueSettingsForm
 from .decorators import user_owns_company_and_venue
-from .serializers import EventSerializer
+from .serializers import EventSerializer, GuestSerializer, GuestListSerializer
 
 
 # Set up stripe
@@ -1177,3 +1177,21 @@ class EventViewSet(viewsets.ModelViewSet):
 
     queryset = Event.objects.all().order_by('datestart')
     serializer_class = EventSerializer
+
+
+class GuestViewSet(viewsets.ModelViewSet):
+    """
+    API Endpoint that lets Events be viewed
+    """
+
+    queryset = Guest.objects.all().order_by('lastname')
+    serializer_class = GuestSerializer
+
+
+class GuestListViewSet(viewsets.ModelViewSet):
+    """
+    API Endpoint that lets Events be viewed
+    """
+
+    queryset = GuestList.objects.all().order_by('name')
+    serializer_class = GuestListSerializer

@@ -17,10 +17,12 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from rest_framework import routers
 import venue
-from venue.views import EventViewSet
+from venue.views import EventViewSet, GuestViewSet, GuestListViewSet
 
 router = routers.DefaultRouter()
 router.register(r'events', EventViewSet)
+router.register(r'guests', GuestViewSet)
+router.register(r'guestlists', GuestListViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
