@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from venue import views
 
+app_name = "venue"
+
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^door/(?P<event>\w+)/$', views.door, name='door'),

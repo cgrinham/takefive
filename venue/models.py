@@ -17,7 +17,7 @@ class Company(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, blank=True, null=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True, null=True)
 
     def __unicode__(self):
         return self.user.username
@@ -35,7 +35,7 @@ class Profile(models.Model):
 # Holds all venues owned by all companies
 class Venue(models.Model):
     created = models.DateTimeField(editable=False, default=now)
-    owner = models.ForeignKey(Company)
+    owner = models.ForeignKey(Company, on_delete=models.CASCADE)
     name = models.CharField(max_length=40)
     reference = models.CharField(max_length=40)
     capacity = models.PositiveIntegerField("Venue Capacity")
@@ -63,8 +63,8 @@ class Venue(models.Model):
 
 # Venue Layout for Area Reservation
 class VenueLayout(models.Model):
-    company = models.ForeignKey(Company)
-    venue = models.ForeignKey(Venue)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     name = models.CharField(max_length=120, default="Default Layout")
     description = models.CharField(max_length=400, blank=True)
 
@@ -73,9 +73,9 @@ class VenueLayout(models.Model):
 
 
 class VenueLayoutArea(models.Model):
-    company = models.ForeignKey(Company)
-    venue = models.ForeignKey(Venue)
-    layout = models.ForeignKey(VenueLayout)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
+    layout = models.ForeignKey(VenueLayout, on_delete=models.CASCADE)
     name = models.CharField(max_length=40)
     capacity = models.PositiveIntegerField()
     notes = models.CharField(max_length=500)
@@ -86,9 +86,9 @@ class VenueLayoutArea(models.Model):
 
 
 class AreaHireBooking(models.Model):
-    company = models.ForeignKey(Company)
-    venue = models.ForeignKey(Venue)
-    area = models.ForeignKey(VenueLayoutArea)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
+    area = models.ForeignKey(VenueLayoutArea, on_delete=models.CASCADE)
     firstname = models.CharField("First Name", max_length=50)
     lastname = models.CharField("Last Name", max_length=50)
     email = models.EmailField("Email Address", max_length=254)
@@ -102,8 +102,8 @@ class AreaHireBooking(models.Model):
 
 # Holds all Events for all venues
 class Event(models.Model):
-    company = models.ForeignKey(Company)
-    venue = models.ForeignKey(Venue)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     name = models.CharField("Event Name", max_length=120)
     description = models.TextField("Description")
     datestart = models.DateField("Event Start Date")
@@ -118,8 +118,8 @@ class Event(models.Model):
 
 
 class RecurringEvent(models.Model):
-    company = models.ForeignKey(Company)
-    venue = models.ForeignKey(Venue)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     name = models.CharField("Event Name", max_length=120)
     description = models.TextField("Description")
     firstevent = models.DateField("First Event Date")
@@ -140,9 +140,9 @@ class RecurringEvent(models.Model):
 
 
 class RecurringEventDate(models.Model):
-    company = models.ForeignKey(Company)
-    venue = models.ForeignKey(Venue)
-    event = models.ForeignKey(RecurringEvent)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
+    event = models.ForeignKey(RecurringEvent, on_delete=models.CASCADE)
     datestart = models.DateField("Event Start Date")
     timestart = models.TimeField("Event Start Time")
     dateend = models.DateField("Event End Date")
@@ -154,10 +154,11 @@ class RecurringEventDate(models.Model):
 
 # Holds title of guest lists for all events
 class GuestList(models.Model):
-    company = models.ForeignKey(Company)
-    venue = models.ForeignKey(Venue)
-    event = models.ForeignKey(Event, blank=True, null=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True, null=True)
     recurringevent = models.ForeignKey(RecurringEventDate,
+                                       on_delete=models.CASCADE,
                                        blank=True,
                                        null=True)
     name = models.CharField("Guest List Title", max_length=100)
@@ -178,9 +179,9 @@ class GuestList(models.Model):
 
 # Holds all guests for all guestlists
 class Guest(models.Model):
-    company = models.ForeignKey(Company)
-    venue = models.ForeignKey(Venue)
-    guestlist = models.ForeignKey(GuestList)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
+    guestlist = models.ForeignKey(GuestList, on_delete=models.CASCADE)
     firstname = models.CharField("First Name", max_length=50)
     lastname = models.CharField("Last Name", max_length=50)
     email = models.EmailField("Email", max_length=254)
@@ -208,8 +209,8 @@ class Member(models.Model):
 
 
 class MembershipType(models.Model):
-    company = models.ForeignKey(Company)
-    venue = models.ForeignKey(Venue)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     name = models.CharField(max_length=254)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     length = models.CharField(max_length=10)
@@ -226,8 +227,8 @@ class MembershipType(models.Model):
 
 class Membership(models.Model):
     """ Membership relationships """
-    member = models.ForeignKey(Member)
-    membershiptype = models.ForeignKey(MembershipType)
+    member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    membershiptype = models.ForeignKey(MembershipType, on_delete=models.CASCADE)
     starts = models.DateField("Date started")
     expires = models.DateField("Membership expiry date")
     paid = models.BooleanField("Membership paid", default=False)
